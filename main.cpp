@@ -1,5 +1,5 @@
-#include "gui.h"
-#include "sql.h"
+#include "smartnotes.h"
+#include "network.h"
 #include "eventhandlers.h"
 #include <iostream>
 #include <QtGui>
@@ -10,10 +10,9 @@
 
 int main(int argc, char **argv){
 
-    std::unique_ptr<GUI> gui(new GUI(new QApplication(argc,argv)));
+    std::unique_ptr<SmartNotes> smart_notes(new SmartNotes(new QApplication(argc,argv)));
 
-    gui->init();
-    gui->start();
+    smart_notes->startProgramm();
 
     return 0;
 }

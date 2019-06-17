@@ -2,25 +2,31 @@
 #define GUI_H
 
 #include <QWidget>
-#include <QApplication>
 #include "logininterface.h"
 #include "registerinterface.h"
+#include "maininterface.h"
 #include "eventhandlers.h"
+
+class Network;
 
 class GUI
 {
 public:
-    GUI(QApplication* app);
+    GUI();
     ~GUI();
-    QApplication* getQApplication();
-    void init();
+    void initInitialization(Network*);
     void createLogInInterface();
+    void finishLoginIn();
     void createRegisterInterface();
-    void start();
+    void finishRegistration();
+    void createMainInterface();
+    void finishMainInterface();
+    void startMainProgram();
+    void finishMainProgram();
 private:
-    QApplication* app;
-    LogInInterface* log_in_interface;
-    RegisterInterface* register_interface;
+    Interface* log_in_interface;
+    Interface* register_interface;
+    Interface* main_interface;
     EventHandlers* event_handlers;
 };
 

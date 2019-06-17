@@ -4,8 +4,9 @@ RegisterInterface::RegisterInterface(QWidget* window, EventHandlers* event_handl
 
     this->window = window;
     setDefaultWindowSettings();
-    createDefaultRegisterInterface();
-    bindDefaultRegisterInterface(event_handlers);
+    createDefaultInterface();
+    bindDefaultInterface(event_handlers);
+    showWindow();
 
 }
 
@@ -28,24 +29,24 @@ RegisterInterface::~RegisterInterface(){
 }
 
 void RegisterInterface::setDefaultWindowSettings(){
-
+    window->setWindowTitle("Registration");
 }
 
-void RegisterInterface::createDefaultRegisterInterface(){
+void RegisterInterface::createDefaultInterface(){
 
     registerLayout = new QGridLayout(window);
 
-    usernameLabel = new QLabel(QLabel::tr("Username"),window);
-    passwordLabel = new QLabel(QLabel::tr("Password"),window);
-    passwordRepeatLabel = new QLabel(QLabel::tr("Repeat password"),window);
-    emailLabel = new QLabel(QLabel::tr("E-mail"),window);
+    usernameLabel = new QLabel(QLabel::tr("Username"));
+    passwordLabel = new QLabel(QLabel::tr("Password"));
+    passwordRepeatLabel = new QLabel(QLabel::tr("Repeat password"));
+    emailLabel = new QLabel(QLabel::tr("E-mail"));
 
-    usernameEdit = new QLineEdit(window);
-    passwordEdit = new QLineEdit(window);
-    passwordRepeatEdit = new QLineEdit(window);
-    emailEdit = new QLineEdit(window);
+    usernameEdit = new QLineEdit();
+    passwordEdit = new QLineEdit();
+    passwordRepeatEdit = new QLineEdit();
+    emailEdit = new QLineEdit();
 
-    registerButtonBox = new QDialogButtonBox(window);
+    registerButtonBox = new QDialogButtonBox();
     okButton = new QPushButton(QPushButton::tr("Ok"));
     cancelButton = new QPushButton(QPushButton::tr("Cancel"));
     registerButtonBox->addButton(okButton,QDialogButtonBox::AcceptRole);
@@ -55,15 +56,13 @@ void RegisterInterface::createDefaultRegisterInterface(){
     registerLayout->addWidget(passwordLabel,1,0);
     registerLayout->addWidget(passwordRepeatLabel,2,0);
     registerLayout->addWidget(emailLabel,3,0);
+    registerLayout->addWidget(usernameEdit,0,1);
     registerLayout->addWidget(passwordEdit,1,1);
     registerLayout->addWidget(passwordRepeatEdit,2,1);
-    registerLayout->addWidget(usernameEdit,0,1);
     registerLayout->addWidget(emailEdit,3,1);
     registerLayout->addWidget(registerButtonBox,4,1);
 
     setAutoDeleteAttr();
-
-    window->show();
 
 }
 
@@ -73,9 +72,9 @@ void RegisterInterface::setAutoDeleteAttr(){
     passwordLabel->setAttribute(Qt::WA_DeleteOnClose);
     passwordRepeatLabel->setAttribute(Qt::WA_DeleteOnClose);
     emailLabel->setAttribute(Qt::WA_DeleteOnClose);
-    passwordEdit->setAttribute(Qt::WA_DeleteOnClose);
-    passwordRepeatEdit->setAttribute(Qt::WA_DeleteOnClose);
     usernameEdit->setAttribute(Qt::WA_DeleteOnClose);
+    passwordEdit->setAttribute(Qt::WA_DeleteOnClose);
+    passwordRepeatEdit->setAttribute(Qt::WA_DeleteOnClose); 
     emailEdit->setAttribute(Qt::WA_DeleteOnClose);
     okButton->setAttribute(Qt::WA_DeleteOnClose);
     cancelButton->setAttribute(Qt::WA_DeleteOnClose);
@@ -91,18 +90,35 @@ void RegisterInterface::showEveryhing(){
     passwordLabel->show();
     passwordRepeatLabel->show();
     emailLabel->show();
+    usernameEdit->show();
     passwordEdit->show();
     passwordRepeatEdit->show();
-    usernameEdit->show();
     emailEdit->show();
     registerButtonBox->show();
 
 }
 
-void RegisterInterface::bindDefaultRegisterInterface(EventHandlers* event_handlers){
+void RegisterInterface::showWindow(){
+    window->show();
+}
+
+void RegisterInterface::bindDefaultInterface(EventHandlers* event_handlers){
+    warningMessage = new QErrorMessage();
     event_handlers->bindDefaultRegisterInterface(okButton, usernameEdit, passwordEdit, passwordRepeatEdit, emailEdit, cancelButton, this);
+}
+
+void RegisterInterface::showMessage(QString message){
+    warningMessage->showMessage(message);
 }
 
 QWidget* RegisterInterface::getWindow(){
     return this->window;
+}
+
+QWidget* RegisterInterface::getWidget(QString widget){
+    return new QWidget();
+}
+
+QListWidget* RegisterInterface::getNotesList(){
+    return nullptr;
 }

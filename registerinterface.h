@@ -1,25 +1,22 @@
 #ifndef REGISTERINTERFACE_H
 #define REGISTERINTERFACE_H
 
-#include "eventhandlers.h"
-#include <QLabel>
-#include <QLineEdit>
-#include <QCheckBox>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QGridLayout>
+#include "interface.h"
 
-class RegisterInterface
-{
+class RegisterInterface: public Interface{
 public:
     RegisterInterface(QWidget*,EventHandlers*);
-    ~RegisterInterface();
-    void setDefaultWindowSettings();
-    void createDefaultRegisterInterface();
-    void setAutoDeleteAttr();
-    void showEveryhing();
-    void bindDefaultRegisterInterface(EventHandlers*);
-    QWidget* getWindow();
+    virtual ~RegisterInterface();
+    void setDefaultWindowSettings() override;
+    void createDefaultInterface() override;
+    void setAutoDeleteAttr() override;
+    void showEveryhing() override;
+    void showWindow() override;
+    void bindDefaultInterface(EventHandlers*) override;
+    void showMessage(QString) override;
+    QWidget* getWindow() override;
+    QWidget* getWidget(QString) override;
+    QListWidget * getNotesList() override;
 private:
     QWidget* window;
 
@@ -38,6 +35,8 @@ private:
     QDialogButtonBox* registerButtonBox;
     QPushButton* okButton;
     QPushButton* cancelButton;
+
+    QErrorMessage* warningMessage;
 };
 
 #endif // REGISTERINTERFACE_H

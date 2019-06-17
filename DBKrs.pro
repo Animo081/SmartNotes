@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += sql widgets network
+QT       += webenginewidgets
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -29,17 +30,22 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
     gui.cpp \
-    sql.cpp \
     logininterface.cpp \
     eventhandlers.cpp \
-    registerinterface.cpp
+    network.cpp \
+    registerinterface.cpp \
+    maininterface.cpp \
+    smartnotes.cpp
 
 HEADERS += \
     gui.h \
-    sql.h \
     logininterface.h \
     eventhandlers.h \
-    registerinterface.h
+    network.h \
+    registerinterface.h \
+    interface.h \
+    maininterface.h \
+    smartnotes.h
 
 FORMS +=
 
@@ -47,3 +53,7 @@ FORMS +=
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    files.qrc
+

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/default.png</file>
+        <file>images/category.png</file>
+        <file>images/group.png</file>
+        <file>images/logout.png</file>
+        <file>images/settings.png</file>
+        <file>images/delete.png</file>
+        <file>images/version.png</file>
+        <file>images/select_category.png</file>
+    </qresource>
+</RCC>

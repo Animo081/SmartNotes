@@ -4,13 +4,13 @@ LogInInterface::LogInInterface(QWidget* window, EventHandlers* event_handlers){
 
     this->window = window;
     setDefaultWindowSettings();
-    createDefaultLogInInterface();
-    bindDefaultLogInInterface(event_handlers);
+    createDefaultInterface();
+    bindDefaultInterface(event_handlers);
+    showWindow();
 }
 
 LogInInterface::~LogInInterface(){
 
-    delete loginLayout;
     delete usernameLabel;
     delete passwordLabel;
     delete usernameEdit;
@@ -27,20 +27,21 @@ LogInInterface::~LogInInterface(){
 void LogInInterface::setDefaultWindowSettings(){
 
     //window->resize(840,620);
+    window->setWindowTitle("Welcome");
 
 }
 
-void LogInInterface::createDefaultLogInInterface(){
+void LogInInterface::createDefaultInterface(){
 
     loginLayout = new QGridLayout(window);
 
-    usernameLabel = new QLabel (QLabel::tr("Username:"),window);
-    passwordLabel = new QLabel (QLabel::tr("Password:"),window);
-    usernameEdit = new QLineEdit(window);
-    passwordEdit = new QLineEdit(window);
-    savePass = new QCheckBox(QCheckBox::tr("Save password"),window);
+    usernameLabel = new QLabel (QLabel::tr("Username:"));
+    passwordLabel = new QLabel (QLabel::tr("Password:"));
+    usernameEdit = new QLineEdit();
+    passwordEdit = new QLineEdit();
+    savePass = new QCheckBox(QCheckBox::tr("Save password"));
 
-    loginButtonBox = new QDialogButtonBox(window);
+    loginButtonBox = new QDialogButtonBox();
     signInButton = new QPushButton(QPushButton::tr("Sign in"));
     registerButton = new QPushButton(QPushButton::tr("Have no account?"));
     loginButtonBox->addButton(signInButton,QDialogButtonBox::ActionRole);
@@ -54,8 +55,6 @@ void LogInInterface::createDefaultLogInInterface(){
     loginLayout->addWidget(loginButtonBox,2,1);
 
     setAutoDeleteAttr();
-
-    window->show();
 
 }
 
@@ -85,10 +84,27 @@ void LogInInterface::showEveryhing(){
 
 }
 
-void LogInInterface::bindDefaultLogInInterface(EventHandlers* event_handlers){
-    event_handlers->bindDefaultLogInInterface(signInButton,usernameEdit,passwordEdit,registerButton);
+void LogInInterface::showWindow(){
+    window->show();
+}
+
+void LogInInterface::bindDefaultInterface(EventHandlers* event_handlers){
+    warningMessage = new QErrorMessage();
+    event_handlers->bindDefaultLogInInterface(signInButton,usernameEdit,passwordEdit,registerButton,this);
+}
+
+void LogInInterface::showMessage(QString message){
+    warningMessage->showMessage(message);
 }
 
 QWidget* LogInInterface::getWindow(){
     return this->window;
+}
+
+QWidget* LogInInterface::getWidget(QString widget){
+    return new QWidget();
+}
+
+QListWidget* LogInInterface::getNotesList(){
+    return nullptr;
 }
