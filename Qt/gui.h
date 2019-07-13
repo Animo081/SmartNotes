@@ -1,7 +1,9 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include <variant>
 #include <QWidget>
+#include <QMainWindow>
 #include "logininterface.h"
 #include "registerinterface.h"
 #include "maininterface.h"
@@ -9,25 +11,39 @@
 
 class Network;
 
-class GUI
-{
+class Tools {
 public:
-    GUI();
-    ~GUI();
-    void initInitialization(Network*);
+	Tools();
+	void setAttributeToQWidgets(const Qt::WidgetAttribute&& attribute,
+		std::initializer_list<QWidget*> list);
+	void setSizePolicyToQWidgets(const QSizePolicy::Policy&& horizontal,
+		const QSizePolicy::Policy&& vertical, 
+		std::initializer_list<QWidget*> list);
+	void showMessage(const QString&& message);
+private:
+	QScopedPointer<QErrorMessage> message_;
+};
+
+class Gui: public QMainWindow{
+public:
+    Gui();
+    void startInitialization(std::shared_ptr<Gui>& gui, 
+		std::shared_ptr<Network>& network);
     void createLogInInterface();
-    void finishLoginIn();
-    void createRegisterInterface();
-    void finishRegistration();
+	void createRegisterInterface();
     void createMainInterface();
-    void finishMainInterface();
+	virtual void destroyInterface(Interface*);
+	virtual void destroyCurrentInterface();
     void startMainProgram();
     void finishMainProgram();
 private:
-    Interface* log_in_interface;
-    Interface* register_interface;
-    Interface* main_interface;
-    EventHandlers* event_handlers;
+	std::unique_ptr<EventHandlers> eventHandlers_;
+
+	std::shared_ptr<Tools> tools_;
+
+    std::unique_ptr<Interface> logInInterface_;
+    std::unique_ptr<Interface> registerInterface_;
+    std::unique_ptr<Interface> mainInterface_;
 };
 
 #endif // GUI_H

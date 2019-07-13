@@ -1,110 +1,82 @@
 #include "logininterface.h"
+#include "Gui.h"
 
-LogInInterface::LogInInterface(QWidget* window, EventHandlers* event_handlers){
+LogInInterface::LogInInterface(std::shared_ptr<Tools> tools, QWidget* parent):
+	backgroundImagePixmap_(""), tools_(std::move(tools)), QWidget(parent) {}
 
-    this->window = window;
-    setDefaultWindowSettings();
-    createDefaultInterface();
-    bindDefaultInterface(event_handlers);
-    showWindow();
+LogInInterface::~LogInInterface() {}
+
+void LogInInterface::createInterface(EventHandlers* eventHandlers) {
+
+	createInterfaceElements();
+	placeInterfaceElements();
+
+	setAttributeToAllWidgets(Qt::WA_DeleteOnClose);
+	tools_->setSizePolicyToQWidgets(QSizePolicy::Fixed, QSizePolicy::Fixed, {
+		buttonBox_.get(),
+		usernameEdit_.get(),
+		passwordEdit_.get()
+	});
+
+	//eventHandlers->bindDefaultLogInInterface();
+	this->show();
 }
 
-LogInInterface::~LogInInterface(){
+void LogInInterface::createInterfaceElements(){
 
-    delete usernameLabel;
-    delete passwordLabel;
-    delete usernameEdit;
-    delete passwordEdit;
-    delete savePass;
-    delete signInButton;
-    delete registerButton;
-    delete loginButtonBox;
+    loginInterfaceLayout_.reset(new QGridLayout(this));
 
-    delete window;
+	mainPartLayout_.reset(new QGridLayout());
 
+    usernameLabel_.reset(new QLabel (QLabel::tr("Username:")));
+    passwordLabel_.reset(new QLabel (QLabel::tr("Password:")));
+
+    usernameEdit_.reset(new QLineEdit());
+    passwordEdit_.reset(new QLineEdit());
+
+    savePasswordCheckBox_.reset(new QCheckBox(QCheckBox::tr("Save password")));
+
+    buttonBox_.reset(new QDialogButtonBox());
+
+	signInButton_.reset(new QPushButton(QPushButton::tr("Sign in")));
+	signUpButton_.reset(new QPushButton(QPushButton::tr("Have no account?")));
 }
 
-void LogInInterface::setDefaultWindowSettings(){
+void LogInInterface::placeInterfaceElements() {
 
-    //window->resize(840,620);
-    window->setWindowTitle("Welcome");
+	buttonBox_->addButton(signInButton_.get(), QDialogButtonBox::ActionRole);
+	buttonBox_->addButton(signUpButton_.get(), QDialogButtonBox::ActionRole);
 
+	mainPartLayout_->addWidget(usernameLabel_.get(), 0, 0);
+	mainPartLayout_->addWidget(passwordLabel_.get(), 1, 0);
+	mainPartLayout_->addWidget(usernameEdit_.get(), 0, 1);
+	mainPartLayout_->addWidget(passwordEdit_.get(), 1, 1);
+	mainPartLayout_->addWidget(savePasswordCheckBox_.get(), 2, 0);
+	mainPartLayout_->addWidget(buttonBox_.get(), 2, 1);
+
+	loginInterfaceLayout_->addLayout(mainPartLayout_.get(),0,0,Qt::AlignCenter);
 }
 
-void LogInInterface::createDefaultInterface(){
+void LogInInterface::setAttributeToAllWidgets(const Qt::WidgetAttribute&& attribute) {
 
-    loginLayout = new QGridLayout(window);
-
-    usernameLabel = new QLabel (QLabel::tr("Username:"));
-    passwordLabel = new QLabel (QLabel::tr("Password:"));
-    usernameEdit = new QLineEdit();
-    passwordEdit = new QLineEdit();
-    savePass = new QCheckBox(QCheckBox::tr("Save password"));
-
-    loginButtonBox = new QDialogButtonBox();
-    signInButton = new QPushButton(QPushButton::tr("Sign in"));
-    registerButton = new QPushButton(QPushButton::tr("Have no account?"));
-    loginButtonBox->addButton(signInButton,QDialogButtonBox::ActionRole);
-    loginButtonBox->addButton(registerButton,QDialogButtonBox::ActionRole);
-
-    loginLayout->addWidget(usernameLabel,0,0);
-    loginLayout->addWidget(passwordLabel,1,0);
-    loginLayout->addWidget(usernameEdit,0,1);
-    loginLayout->addWidget(passwordEdit,1,1);
-    loginLayout->addWidget(savePass,2,0);
-    loginLayout->addWidget(loginButtonBox,2,1);
-
-    setAutoDeleteAttr();
-
+	auto&& interfaceWidgetsList = this->children();
+	for (auto&& widget : interfaceWidgetsList) {
+		if (widget->isWidgetType())
+			qobject_cast<QWidget*>(widget)->setAttribute(attribute);
+	}
 }
 
-void LogInInterface::setAutoDeleteAttr(){
+void LogInInterface::setSizePolicyToAllWidgets(const QSizePolicy::Policy&& horizontal,
+	const QSizePolicy::Policy&& vertical) {
 
-    usernameLabel->setAttribute(Qt::WA_DeleteOnClose);
-    passwordLabel->setAttribute(Qt::WA_DeleteOnClose);
-    usernameEdit->setAttribute(Qt::WA_DeleteOnClose);
-    passwordEdit->setAttribute(Qt::WA_DeleteOnClose);
-    savePass->setAttribute(Qt::WA_DeleteOnClose);
-    loginButtonBox->setAttribute(Qt::WA_DeleteOnClose);
-    signInButton->setAttribute(Qt::WA_DeleteOnClose);
-    registerButton->setAttribute(Qt::WA_DeleteOnClose);
-
-    window->setAttribute(Qt::WA_DeleteOnClose);
-
+	auto&& interfaceWidgetsList = this->children();
+	for (auto&& widget : interfaceWidgetsList) {
+		if (widget->isWidgetType())
+			qobject_cast<QWidget*>(widget)->setSizePolicy(QSizePolicy(horizontal,vertical));
+	}
 }
 
-void LogInInterface::showEveryhing(){
-
-    usernameLabel->show();
-    passwordLabel->show();
-    usernameEdit->show();
-    passwordEdit->show();
-    savePass->show();
-    loginButtonBox->show();
-
-}
-
-void LogInInterface::showWindow(){
-    window->show();
-}
-
-void LogInInterface::bindDefaultInterface(EventHandlers* event_handlers){
-    warningMessage = new QErrorMessage();
-    event_handlers->bindDefaultLogInInterface(signInButton,usernameEdit,passwordEdit,registerButton,this);
-}
-
-void LogInInterface::showMessage(QString message){
-    warningMessage->showMessage(message);
-}
-
-QWidget* LogInInterface::getWindow(){
-    return this->window;
-}
-
-QWidget* LogInInterface::getWidget(QString widget){
-    return new QWidget();
-}
-
-QListWidget* LogInInterface::getNotesList(){
-    return nullptr;
-}
+QString LogInInterface::getUsernameEditText() { return usernameEdit_->text(); }
+QString LogInInterface::getPasswordEditText() { return passwordEdit_->text(); }
+QPushButton* LogInInterface::getSignInButton() { return signInButton_.get(); }
+QPushButton* LogInInterface::getSignUpButton() { return signUpButton_.get(); }

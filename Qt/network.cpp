@@ -6,26 +6,26 @@ Network::Network():QMainWindow(nullptr){
     category_name = "";
 }
 
-void Network::setGui(GUI* gui){
-    this->gui = gui;
+void Network::setGui(std::shared_ptr<Gui> gui){
+    gui_ = std::move(gui);// поправить
 }
 
 void Network::signIn(const QString& usernameEditText,const QString& passwordEditText,Interface* log_in_interface){
 
     if (!usernameEditText.contains(" ") && !passwordEditText.contains(" ")){
-        this->interface = log_in_interface;
+        //this->interface = log_in_interface;
         QNetworkRequest request(QUrl("http://localhost:8080/signIn/?username="+usernameEditText+"&password="+passwordEditText+""));
         manager = new QNetworkAccessManager();
         reply = manager->get(request);
         connect(reply, SIGNAL(finished()),this,SLOT(getReplyFinished()));
-    }
+    }				
 
 }
 
 void Network::registration(const QString& usernameEditText, const QString& passwordEditText, const QString& emailEditText,Interface* register_interface){
 
     if (!usernameEditText.contains(" ") && !passwordEditText.contains(" ") && !emailEditText.contains(" ")){
-        this->interface = register_interface;
+        //this->interface = register_interface;
         QNetworkRequest request(QUrl("http://localhost:8080/registration/?username="+usernameEditText+"&password="+passwordEditText+"&email="+emailEditText+""));
         manager = new QNetworkAccessManager();
         reply = manager->get(request);
@@ -92,7 +92,7 @@ void Network::getCurrentNote(MainInterface* main_interface){
         QNetworkRequest request(serviceUrl);
 
         QJsonObject json;
-        json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
+        //json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
         QJsonDocument jsonDoc(json);
         QByteArray jsonData= jsonDoc.toJson();
 
@@ -114,7 +114,7 @@ void Network::getCurrentNote(MainInterface* main_interface){
 void Network::createNewNote(const int& row_counter, MainInterface* main_interface){
 
     this->row_counter = row_counter;
-    this->interface = main_interface;
+    //this->interface = main_interface;
     QNetworkRequest request(QUrl("http://localhost:8080/newnote/?user_id="+user_id));
     manager = new QNetworkAccessManager();
     reply = manager->get(request);
@@ -157,7 +157,7 @@ void Network::deleteCurrentNoteData(MainInterface* main_interface){
     QNetworkRequest request(serviceUrl);
 
     QJsonObject json;
-    json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
+    //json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
 
@@ -259,7 +259,7 @@ void Network::setVersion(MainInterface* main_interface){
     QNetworkRequest request(serviceUrl);
 
     QJsonObject json;
-    json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
+    //json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
     json.insert("version", main_interface->getVersionsBox()->currentData().toString());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
@@ -284,7 +284,7 @@ void Network::getVersions(MainInterface* main_interface){
     QNetworkRequest request(serviceUrl);
 
     QJsonObject json;
-    json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
+    //json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
 
@@ -458,24 +458,24 @@ void Network::getReplyFinished(){
 
     if(reply->error() != QNetworkReply::NoError)
     {
-        interface->showMessage(reply->errorString());
+        //interface->showMessage(reply->errorString());
         reply->deleteLater();
         return;
     }
     message = reply->readAll();
     QRegExp re("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}");
     if (re.exactMatch(message) && message != ""){
-        interface->getNotesList()->item(row_counter)->setWhatsThis(message);
-        interface->getNotesList()->setCurrentRow(row_counter);
+        //interface->getNotesList()->item(row_counter)->setWhatsThis(message);
+        //interface->getNotesList()->setCurrentRow(row_counter);
     } else {
         if (!message.contains("Welcome"))
-            interface->showMessage(message);
+            //interface->showMessage(message);
         if (message.contains("Welcome")){
             user_id = message.mid(QString("Welcome, ").size());
-            this->gui->startMainProgram();
+            this->gui_->startMainProgram();
         }
-        if (message == "Registration completed")
-            this->gui->finishRegistration();
+        //if (message == "Registration completed")
+          //  this->gui->finishRegistration();
     }
     reply->deleteLater();
 
@@ -493,7 +493,7 @@ void Network::syncRequestFinished_allNotes(QNetworkReply* reply){
     QJsonArray array = document.array();
     //main_interface->addNewRowInNotesList(0,"New Note","");
     foreach (const QJsonValue & v, array){//QString::number(v.toObject().value("note_id").toInt()
-        main_interface->addNewRowInNotesList(main_interface->getNotesList()->count()-1,v.toObject().value("name").toString(),v.toObject().value("note_id").toString(),v.toObject().value("category_color").toString(),v.toObject().value("text_color").toString());
+        //main_interface->addNewRowInNotesList(main_interface->getNotesList()->count()-1,v.toObject().value("name").toString(),v.toObject().value("note_id").toString(),v.toObject().value("category_color").toString(),v.toObject().value("text_color").toString());
         QCoreApplication::processEvents();
     }
 
@@ -523,15 +523,15 @@ void Network::syncRequestFinished_currentNote(QNetworkReply* reply){
 void Network::syncRequestFinished_currentNoteDelete(QNetworkReply*){
 
     main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','');} setContent();",[=] (const QVariant &v){
-        main_interface->getNotesList()->takeItem(main_interface->getNotesList()->currentRow());
+        //main_interface->getNotesList()->takeItem(main_interface->getNotesList()->currentRow());
         main_interface->hideDefaultCurrentNoteSection();
-        main_interface->getWidget("hideCurrentNoteSection")->hide();
+        //main_interface->getWidget("hideCurrentNoteSection")->hide();
     });
 
 }
 
 void Network::syncRequestFinished_sendPersonalData(QNetworkReply* reply){
-    main_interface->showMessage(reply->readAll());
+    //main_interface->showMessage(reply->readAll());
     getPersonalImage(main_interface);
 }
 
@@ -589,7 +589,7 @@ void Network::syncRequestFinished_getVersions(QNetworkReply* reply){
 }
 
 void Network::syncRequestFinished_createCategory(QNetworkReply* reply){
-    main_interface->showMessage(reply->readAll());
+    //main_interface->showMessage(reply->readAll());
     getCategoryList(main_interface);
     getCategoryListForMainInterface(main_interface);
 }
@@ -673,10 +673,10 @@ void Network::syncRequestFinished_customizeByCurrentCategory(QNetworkReply* repl
     QString color;
     if (object["category_color"].toString() == "") color = "#000000";
     else color = object["category_color"].toString();
-    main_interface->getNotesList()->currentItem()->setBackgroundColor(color);
+    //main_interface->getNotesList()->currentItem()->setBackgroundColor(color);
     if (object["text_color"].toString() == "") color = "#FFFFFF";
     else color = object["text_color"].toString();
-    main_interface->getNotesList()->currentItem()->setTextColor(color);
+    //main_interface->getNotesList()->currentItem()->setTextColor(color);
     main_interface->getWebPage()->page()->runJavaScript("function setBackground(){$('body').css('background-image', 'none');} setBackground();",[=](const QVariant &v){
     });
     QString back = object["image"].toString();

@@ -13,13 +13,13 @@ class Interface;
 
 class MainInterface;
 
-class GUI;
+class Gui;
 
 class Network: public QMainWindow{
     Q_OBJECT
 public:
     Network();
-    void setGui(GUI*);
+    void setGui(std::shared_ptr<Gui> gui);
     void signIn(const QString&,const QString&,Interface*);
     void registration(const QString&,const QString&,const QString&,Interface*);
     //void getCategories(MainInterface*);
@@ -59,9 +59,9 @@ public slots:
 private:
     int row_counter;
     QString category_name;
-    Interface* interface;
+    //Interface* interface;
     MainInterface* main_interface;
-    GUI* gui;
+    std::shared_ptr<Gui> gui_;
     QString message;
     QString user_id;
     QNetworkReply* reply;

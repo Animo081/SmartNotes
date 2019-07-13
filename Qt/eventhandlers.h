@@ -15,7 +15,7 @@
 #include <QFileDialog>
 #include "network.h"
 
-class GUI;
+class Gui;
 
 class Interface;
 
@@ -40,15 +40,16 @@ public:
     }
 
 
-    EventHandlers(GUI*,Network*);
+    EventHandlers(std::shared_ptr<Gui> gui,
+		std::shared_ptr<Network> network);
     virtual ~EventHandlers();
-    void bindDefaultRegisterInterface(QPushButton*,QLineEdit*,QLineEdit*,QLineEdit*,QLineEdit*,QPushButton*,Interface*);
+    void bindDefaultRegisterInterface(Interface*);
     void cancelRegisterInterface(Interface*);
     void registrationProcessInit(QLineEdit*,QLineEdit*,QLineEdit*,QLineEdit*,Interface*);
-    void bindDefaultLogInInterface(QPushButton*,QLineEdit*,QLineEdit*,QPushButton*,Interface*);
+    void bindDefaultLogInInterface(Interface*);
     void signInButtonBind(QLineEdit*,QLineEdit*,Interface*);
     void registerButtonBind();
-    void bindDefaultMainInterface(QLabel*,MainInterface*);
+    void bindDefaultMainInterface(MainInterface*);
     void fillAllNotesSection(MainInterface*);
     void sendCurrentNoteData(MainInterface*);
     void deleteCurrentNoteData(MainInterface*);
@@ -67,9 +68,9 @@ public slots:
     void versionClickedAction();
     void categoryClickedAction();
 private:
-    MainInterface* interface;
-    Network* network;
-    GUI* gui;
+    MainInterface* mainInterface;
+    std::shared_ptr<Network> network_;
+    std::shared_ptr<Gui> gui_;
     int row_counter;
 };
 

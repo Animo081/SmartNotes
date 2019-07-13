@@ -12,7 +12,7 @@ int main(int argc, char **argv){
 
     smartNotes = std::make_unique<SmartNotes>(new QApplication(argc,argv));
 
-    smartNotes->startProgramm();
+    smartNotes->startApplication();
 
     return 0;
 }

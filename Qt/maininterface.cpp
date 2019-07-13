@@ -3,10 +3,6 @@
 MainInterface::MainInterface(QWidget* window, EventHandlers* event_handlers): QMainWindow(nullptr){
 
     this->window = window;
-    setDefaultWindowSettings();
-    createDefaultInterface();
-    bindDefaultInterface(event_handlers);
-    showWindow();
     window_size = window->size();
 
 }
@@ -43,11 +39,11 @@ MainInterface::~MainInterface(){
     delete window;
 }
 
-void MainInterface::setDefaultWindowSettings(){
-    window->setWindowTitle("Smart Notes");
+void MainInterface::createInterface(EventHandlers* eventHandlers) {
+
 }
 
-void MainInterface::createDefaultInterface(){
+void MainInterface::createInterfaceElements(){
 
     main_layout = new QGridLayout(window);
 
@@ -60,8 +56,18 @@ void MainInterface::createDefaultInterface(){
     main_layout->addLayout(createDefaultAllNotesSection(),0,1);
     main_layout->addWidget(hideCurrentNoteSection,0,2);
     main_layout->addLayout(createDefaultCurrentNoteSection(),0,3);
+}
 
-    setAutoDeleteAttr();
+void MainInterface::placeInterfaceElements() {
+
+}
+
+void MainInterface::setAttributeToAllWidgets(const Qt::WidgetAttribute&&) {
+
+}
+
+void MainInterface::setSizePolicyToAllWidgets(const QSizePolicy::Policy&&, 
+	const QSizePolicy::Policy&&) {
 
 }
 
@@ -161,7 +167,6 @@ QGridLayout* MainInterface::createDefaultAllNotesSection(){
     all_notes_section_layout->addWidget(all_notes_list,1,0);
 
     return all_notes_section_layout;
-
 }
 
 QGridLayout* MainInterface::createDefaultCurrentNoteSection(){
@@ -257,81 +262,8 @@ void MainInterface::hideDefaultCurrentNoteSection(){
 
 }
 
-void MainInterface::setAutoDeleteAttr(){
-
-    personal_settings_label->setAttribute(Qt::WA_DeleteOnClose);
-    categories_settings_label->setAttribute(Qt::WA_DeleteOnClose);
-    group_manager_label->setAttribute(Qt::WA_DeleteOnClose);
-    app_settings_label->setAttribute(Qt::WA_DeleteOnClose);
-    sign_out_label->setAttribute(Qt::WA_DeleteOnClose);
-
-    all_notes_list->setAttribute(Qt::WA_DeleteOnClose);
-    notes_sort_box->setAttribute(Qt::WA_DeleteOnClose);
-    note_categories_box->setAttribute(Qt::WA_DeleteOnClose);
-
-    current_note_name_edit->setAttribute(Qt::WA_DeleteOnClose);
-    choose_current_note_category_box->setAttribute(Qt::WA_DeleteOnClose);
-    choose_current_note_version_box->setAttribute(Qt::WA_DeleteOnClose);
-    choose_current_note_category_label->setAttribute(Qt::WA_DeleteOnClose);
-    current_note_versions_label->setAttribute(Qt::WA_DeleteOnClose);
-    delete_current_note_label->setAttribute(Qt::WA_DeleteOnClose);
-    note_field->setAttribute(Qt::WA_DeleteOnClose);
-    submit_current_note_button->setAttribute(Qt::WA_DeleteOnClose);
-
-    window->setAttribute(Qt::WA_DeleteOnClose);
-}
-
-void MainInterface::showEveryhing(){
-
-}
-
-void MainInterface::showWindow(){
-    window->show();
-}
-
-void MainInterface::bindDefaultInterface(EventHandlers* event_handlers){
-    warningMessage = new QErrorMessage();
-    event_handlers->bindDefaultMainInterface(sign_out_label,this);
-}
-
-void MainInterface::showMessage(QString message){
-    warningMessage->showMessage(message);
-}
-
-QWidget* MainInterface::getWindow(){
-    return this->window;
-}
-
 QSize MainInterface::getWindowDefaultSize(){
     return window_size;
-}
-
-QWidget* MainInterface::getWidget(QString widget){
-    if (widget == "sign_out_label")
-        return sign_out_label;
-    if (widget == "app_settings_label")
-        return app_settings_label;
-    if (widget == "group_manager_label")
-        return group_manager_label;
-    if (widget == "categories_settings_label")
-        return categories_settings_label;
-    if (widget == "personal_settings_label")
-        return personal_settings_label;
-    if (widget == "choose_current_note_category_label")
-        return choose_current_note_category_label;
-    if (widget == "current_note_versions_label")
-        return current_note_versions_label;
-    if (widget == "delete_current_note_label")
-        return delete_current_note_label;
-    if (widget == "all_notes_list")
-        return all_notes_list;
-    if (widget == "hideCurrentNoteSection")
-        return hideCurrentNoteSection;
-    return new QWidget();
-}
-
-QListWidget* MainInterface::getNotesList(){
-    return this->all_notes_list;
 }
 
 void MainInterface::addNewRowInNotesList(const int& row_counter,QString text, QString wtf, QString bg_color, QString text_color){

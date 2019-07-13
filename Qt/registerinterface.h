@@ -7,16 +7,12 @@ class RegisterInterface: public Interface{
 public:
     RegisterInterface(QWidget*,EventHandlers*);
     virtual ~RegisterInterface();
-    void setDefaultWindowSettings() override;
-    void createDefaultInterface() override;
-    void setAutoDeleteAttr() override;
-    void showEveryhing() override;
-    void showWindow() override;
-    void bindDefaultInterface(EventHandlers*) override;
-    void showMessage(QString) override;
-    QWidget* getWindow() override;
-    QWidget* getWidget(QString) override;
-    QListWidget * getNotesList() override;
+	virtual void createInterface(EventHandlers* eventHandlers) override;
+	virtual void createInterfaceElements() override;
+	virtual void placeInterfaceElements() override;
+	virtual void setAttributeToAllWidgets(const Qt::WidgetAttribute&&) override;
+	virtual void setSizePolicyToAllWidgets(const QSizePolicy::Policy&&,
+		const QSizePolicy::Policy&&) override;
 private:
     QWidget* window;
 

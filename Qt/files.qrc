@@ -8,5 +8,6 @@
         <file>images/delete.png</file>
         <file>images/version.png</file>
         <file>images/select_category.png</file>
+        <file>images/icon.png</file>
     </qresource>
 </RCC>

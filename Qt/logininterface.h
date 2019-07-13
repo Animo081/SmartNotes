@@ -3,38 +3,47 @@
 
 #include "interface.h"
 
-class LogInInterface: public Interface {
+class Tools;
+
+class LogInInterface: public QWidget, public Interface {
+	Q_OBJECT
 public:
-    LogInInterface(QWidget*,EventHandlers*);
+    LogInInterface(std::shared_ptr<Tools> tools, QWidget* parent = nullptr);
     virtual ~LogInInterface();
-    void setDefaultWindowSettings() override;
-    void createDefaultInterface() override;
-    void setAutoDeleteAttr() override;
-    void showEveryhing() override;
-    void showWindow() override;
-    void bindDefaultInterface(EventHandlers*) override;
-    void showMessage(QString) override;
-    QWidget* getWindow() override;
-    QWidget* getWidget(QString) override;
-    QListWidget * getNotesList() override;
+	virtual void createInterface(EventHandlers* eventHandlers) override;
+	virtual void createInterfaceElements() override;
+	virtual void placeInterfaceElements() override;
+	virtual void setAttributeToAllWidgets(
+		const Qt::WidgetAttribute&& attribute) override;
+	virtual void setSizePolicyToAllWidgets(
+		const QSizePolicy::Policy&& horizontal,
+		const QSizePolicy::Policy&& vertical) override;
+
+	QString getUsernameEditText();
+	QString getPasswordEditText();
+	QPushButton* getSignInButton();
+	QPushButton* getSignUpButton();
 private:
-    QWidget* window;
+    QScopedPointer<QGridLayout> loginInterfaceLayout_;
 
-    QGridLayout* loginLayout;
+	QScopedPointer<QGridLayout> mainPartLayout_;
 
-    QLabel* usernameLabel;
-    QLabel* passwordLabel;
+    QScopedPointer<QLabel> usernameLabel_;
+    QScopedPointer<QLabel> passwordLabel_;
 
-    QLineEdit* usernameEdit;
-    QLineEdit* passwordEdit;
+    QScopedPointer<QLineEdit> usernameEdit_;
+    QScopedPointer<QLineEdit> passwordEdit_;
 
-    QCheckBox* savePass;
+    QScopedPointer<QCheckBox> savePasswordCheckBox_;
 
-    QDialogButtonBox* loginButtonBox;
-    QPushButton* signInButton;
-    QPushButton* registerButton;
+    QScopedPointer<QDialogButtonBox> buttonBox_;
 
-    QErrorMessage* warningMessage;
+    QScopedPointer<QPushButton> signInButton_;
+    QScopedPointer<QPushButton> signUpButton_;
+
+	QPixmap backgroundImagePixmap_;
+
+	std::shared_ptr<Tools> tools_;
 };
 
 #endif // LOGININTERFACE_H

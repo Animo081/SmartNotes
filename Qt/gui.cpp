@@ -1,76 +1,92 @@
 #include "gui.h"
 #include "network.h"
 
-GUI::GUI(){
+Gui::Gui(): QMainWindow(), tools_(std::make_shared<Tools>()) {}
 
-    this->log_in_interface = nullptr;
-    this->register_interface = nullptr;
+void Gui::startInitialization(std::shared_ptr<Gui>& gui,
+	std::shared_ptr<Network>& network) {
 
-}
-
-GUI::~GUI(){
-    delete event_handlers;
-}
-
-void GUI::initInitialization(Network* network){
-
-    this->event_handlers = new EventHandlers(this,network);
-    this->createLogInInterface();
-
+    eventHandlers_.reset(new EventHandlers(gui,network));
+	createLogInInterface();
     //startMainProgram();
-
 }
 
-void GUI::createLogInInterface(){
-    this->log_in_interface = new LogInInterface(new QWidget(),this->event_handlers);
+void Gui::createLogInInterface(){
+	destroyCurrentInterface();
+    logInInterface_.reset(new LogInInterface(tools_));
+	logInInterface_->createInterface(eventHandlers_.get());
+	eventHandlers_->bindDefaultLogInInterface(logInInterface_.get());
 }
 
-void GUI::finishLoginIn(){
-
-    if (log_in_interface != nullptr){
-        log_in_interface->getWindow()->close();
-        delete log_in_interface;
-        log_in_interface = nullptr;
-    }
-
+void Gui::createRegisterInterface() {
+	destroyCurrentInterface();
+	registerInterface_.reset(new LogInInterface(tools_));
+	registerInterface_->createInterface(eventHandlers_.get());
+	eventHandlers_->bindDefaultLogInInterface(registerInterface_.get());
 }
 
-void GUI::createRegisterInterface() {
-    this->register_interface = new RegisterInterface(new QWidget(),this->event_handlers);
+void Gui::createMainInterface(){
+	destroyCurrentInterface();
+	mainInterface_.reset(new LogInInterface(tools_));
+	mainInterface_->createInterface(eventHandlers_.get());
+	eventHandlers_->bindDefaultLogInInterface(mainInterface_.get());
 }
 
-void GUI::finishRegistration(){
+void Gui::destroyInterface(Interface* destroyedInterface) {
 
-    if (register_interface != nullptr){
-        register_interface->getWindow()->close();
-        delete register_interface;
-        register_interface = nullptr;
-    }
-
+	if (typeid(LogInInterface) == typeid(*destroyedInterface))
+		if (logInInterface_.get() != nullptr)
+			logInInterface_.reset();
+		else tools_->showMessage("There is nothing to delete");
+	else if (typeid(RegisterInterface) == typeid(*destroyedInterface))
+			if (registerInterface_.get() != nullptr)
+				registerInterface_.reset();
+	else if (typeid(MainInterface) == typeid(*destroyedInterface))
+			if (mainInterface_.get() != nullptr)
+				mainInterface_.reset();
+	else tools_->showMessage("Can`t destroy interface");
 }
 
-void GUI::createMainInterface(){
-    main_interface = new MainInterface(new QWidget(),this->event_handlers);
+void Gui::destroyCurrentInterface(){
+
+	if (logInInterface_.get() != nullptr)
+		logInInterface_.reset();
+	else if (registerInterface_.get() != nullptr)
+		registerInterface_.reset();
+	else if (mainInterface_.get() != nullptr)
+		mainInterface_.reset();
+	else tools_->showMessage("No interface in use");
 }
 
-void GUI::finishMainInterface(){
-    if (main_interface != nullptr){
-        main_interface->getWindow()->close();
-        delete main_interface;
-        main_interface = nullptr;
-    }
-}
+void Gui::startMainProgram(){
 
-void GUI::startMainProgram(){
-
-    finishRegistration();
-    finishLoginIn();
     createMainInterface();
+}
+
+void Gui::finishMainProgram(){
 
 }
 
-void GUI::finishMainProgram(){
-    finishRegistration();
-    finishLoginIn();
-    finishMainInterface();
+
+//Tools 
+
+Tools::Tools(): message_(new QErrorMessage) {}
+
+void Tools::setAttributeToQWidgets(const Qt::WidgetAttribute&& attribute,
+	std::initializer_list<QWidget*> list) {
+
+	for (auto&& widget : list) 
+		widget->setAttribute(attribute);
+}
+
+void Tools::setSizePolicyToQWidgets(const QSizePolicy::Policy&& horizontal, 
+	const QSizePolicy::Policy&& vertical, std::initializer_list<QWidget*> list) {
+
+	for (auto&& widget : list)
+		widget->setSizePolicy(QSizePolicy(horizontal,vertical));
+}
+
+void Tools::showMessage(const QString&& message) {
+
+	message_->showMessage(message);
 }

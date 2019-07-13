@@ -124,23 +124,21 @@ struct Group{
 class MainInterface: public Interface, public QMainWindow{
 public:
     MainInterface(QWidget*,EventHandlers*);
-    virtual ~MainInterface() override;
-    void setDefaultWindowSettings() override;
-    void createDefaultInterface() override;
+    virtual ~MainInterface();
+	virtual void createInterface(EventHandlers* eventHandlers) override;
+	virtual void createInterfaceElements() override;
+	virtual void placeInterfaceElements() override;
+	virtual void setAttributeToAllWidgets(const Qt::WidgetAttribute&&) override;
+	virtual void setSizePolicyToAllWidgets(const QSizePolicy::Policy&&,
+		const QSizePolicy::Policy&&) override;
+
     QGridLayout* createDefaultUserSection();
     QGridLayout* createDefaultAllNotesSection();
     QGridLayout* createDefaultCurrentNoteSection();
     void showDefaultCurrentNoteSection();
     void hideDefaultCurrentNoteSection();
-    void setAutoDeleteAttr() override;
-    void showEveryhing() override;
-    void showWindow() override;
-    void bindDefaultInterface(EventHandlers*) override;
-    void showMessage(QString) override;
-    QWidget* getWindow() override;
+
     QSize getWindowDefaultSize();
-    QWidget* getWidget(QString) override;
-    QListWidget* getNotesList() override;
     void addNewRowInNotesList(const int&, QString, QString, QString, QString);
     QPushButton* getSubmitButton();
     QWebEngineView* getWebPage();
