@@ -10,19 +10,25 @@ class LogInInterface: public QWidget, public Interface {
 public:
     LogInInterface(std::shared_ptr<Tools> tools, QWidget* parent = nullptr);
     virtual ~LogInInterface();
-	virtual void createInterface(EventHandlers* eventHandlers) override;
+	virtual void createInterface(const EventHandlers* eventHandlers) override;
 	virtual void createInterfaceElements() override;
-	virtual void placeInterfaceElements() override;
+	virtual void placeInterfaceElements() const override;
 	virtual void setAttributeToAllWidgets(
-		const Qt::WidgetAttribute&& attribute) override;
+		const Qt::WidgetAttribute&& attribute) const override;
 	virtual void setSizePolicyToAllWidgets(
 		const QSizePolicy::Policy&& horizontal,
-		const QSizePolicy::Policy&& vertical) override;
+		const QSizePolicy::Policy&& vertical) const override;
+	virtual void show() override;
+	virtual void hide() override;
+	virtual void resize(const int& width, const int& height) override;
+	virtual void resize(const int&& width, const int&& height) override;
 
-	QString getUsernameEditText();
-	QString getPasswordEditText();
-	QPushButton* getSignInButton();
-	QPushButton* getSignUpButton();
+	void paintEvent(QPaintEvent* event) override;
+
+	QString getUsernameEditText() const;
+	QString getPasswordEditText() const;
+	const QPushButton* getSignInButton() const;
+	const QPushButton* getSignUpButton() const;
 private:
     QScopedPointer<QGridLayout> loginInterfaceLayout_;
 
@@ -30,6 +36,9 @@ private:
 
     QScopedPointer<QLabel> usernameLabel_;
     QScopedPointer<QLabel> passwordLabel_;
+
+	QScopedPointer<QGraphicsDropShadowEffect> usernameLabelEffect_;
+	QScopedPointer<QGraphicsDropShadowEffect> passwordLabelEffect_;
 
     QScopedPointer<QLineEdit> usernameEdit_;
     QScopedPointer<QLineEdit> passwordEdit_;
@@ -40,8 +49,6 @@ private:
 
     QScopedPointer<QPushButton> signInButton_;
     QScopedPointer<QPushButton> signUpButton_;
-
-	QPixmap backgroundImagePixmap_;
 
 	std::shared_ptr<Tools> tools_;
 };

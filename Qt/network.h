@@ -21,7 +21,7 @@ public:
     Network();
     void setGui(std::shared_ptr<Gui> gui);
     void signIn(const QString&,const QString&,Interface*);
-    void registration(const QString&,const QString&,const QString&,Interface*);
+    void registration(const QString&,const QString&,const QString&, const Interface*);
     //void getCategories(MainInterface*);
     void getAllNoteRows(MainInterface*);
     void getCurrentNote(MainInterface*);

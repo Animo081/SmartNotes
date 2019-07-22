@@ -22,7 +22,7 @@ void Network::signIn(const QString& usernameEditText,const QString& passwordEdit
 
 }
 
-void Network::registration(const QString& usernameEditText, const QString& passwordEditText, const QString& emailEditText,Interface* register_interface){
+void Network::registration(const QString& usernameEditText, const QString& passwordEditText, const QString& emailEditText, const Interface* register_interface){
 
     if (!usernameEditText.contains(" ") && !passwordEditText.contains(" ") && !emailEditText.contains(" ")){
         //this->interface = register_interface;
@@ -85,8 +85,8 @@ void Network::getAllNoteRows(MainInterface* main_interface){
 void Network::getCurrentNote(MainInterface* main_interface){
 
     this->main_interface = main_interface;
-    main_interface->getNameEdit()->setText("");
-    main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','');} setContent();",[=] (const QVariant &v){
+    //main_interface->getNameEdit()->setText("");
+    /*main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','');} setContent();",[=] (const QVariant &v){
 
         QUrl serviceUrl = QUrl("http://localhost:8080/getcurrentnote");
         QNetworkRequest request(serviceUrl);
@@ -108,7 +108,7 @@ void Network::getCurrentNote(MainInterface* main_interface){
 
 
     });
-
+	*/
 }
 
 void Network::createNewNote(const int& row_counter, MainInterface* main_interface){
@@ -260,7 +260,7 @@ void Network::setVersion(MainInterface* main_interface){
 
     QJsonObject json;
     //json.insert("note_id",main_interface->getNotesList()->currentItem()->whatsThis());
-    json.insert("version", main_interface->getVersionsBox()->currentData().toString());
+    //json.insert("version", main_interface->getVersionsBox()->currentData().toString());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
 
@@ -389,7 +389,7 @@ void Network::getCurrentCategoryData(MainInterface* main_interface){
 
     QJsonObject json;
     json.insert("user_id", user_id);
-    json.insert("category",main_interface->getCustomizationInterface()->choose_category_box->currentData().toString());
+    //json.insert("category",main_interface->getCustomizationInterface()->choose_category_box->currentData().toString());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
 
@@ -414,7 +414,7 @@ void Network::customizeByCurrentCategory(MainInterface* main_interface){
 
     QJsonObject json;
     json.insert("user_id", user_id);
-    json.insert("category",main_interface->getCategoryBox()->currentData().toString());
+    //json.insert("category",main_interface->getCategoryBox()->currentData().toString());
     QJsonDocument jsonDoc(json);
     QByteArray jsonData= jsonDoc.toJson();
 
@@ -482,7 +482,7 @@ void Network::getReplyFinished(){
 }
 
 void Network::syncRequestFinished(QNetworkReply*){
-    if (main_interface->getCategoryBox()->isHidden()) main_interface->getVersionsBox()->show();
+    //if (main_interface->getCategoryBox()->isHidden()) main_interface->getVersionsBox()->show();
     getVersions(main_interface);
     customizeByCurrentCategory(main_interface);
 }
@@ -503,7 +503,7 @@ void Network::syncRequestFinished_currentNote(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonArray array = document.array();
-    foreach (const QJsonValue & v, array){
+    /*foreach (const QJsonValue & v, array){
         main_interface->getNameEdit()->setText(v.toObject().value("name").toString());
         QString html = v.toObject().value("content").toString();
         QString back = v.toObject().value("image").toString();
@@ -516,17 +516,17 @@ void Network::syncRequestFinished_currentNote(QNetworkReply* reply){
         });
 
         QCoreApplication::processEvents();
-    }
+    }*/
 
 }
 
 void Network::syncRequestFinished_currentNoteDelete(QNetworkReply*){
 
-    main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','');} setContent();",[=] (const QVariant &v){
+    /*main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','');} setContent();",[=] (const QVariant &v){
         //main_interface->getNotesList()->takeItem(main_interface->getNotesList()->currentRow());
         main_interface->hideDefaultCurrentNoteSection();
         //main_interface->getWidget("hideCurrentNoteSection")->hide();
-    });
+    });*/
 
 }
 
@@ -539,7 +539,7 @@ void Network::syncRequestFinished_getPersonalData(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonObject object = document.object();
-    main_interface->getPersonalInterface()->first_name_edit->setText(object["firstname"].toString());
+   /* main_interface->getPersonalInterface()->first_name_edit->setText(object["firstname"].toString());
     main_interface->getPersonalInterface()->last_name_edit->setText(object["lastname"].toString());
     main_interface->getPersonalInterface()->phone_number_edit->setText(object["phone_number"].toString());
     main_interface->getPersonalInterface()->email_edit->setText(object["email"].toString());
@@ -550,7 +550,7 @@ void Network::syncRequestFinished_getPersonalData(QNetworkReply* reply){
         p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
         main_interface->getPersonalInterface()->user_photo_label->setPixmap(p.scaled(QSize(100,100),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
     }
-
+	*/
 }
 
 void Network::syncRequestFinished_getPersonalImage(QNetworkReply* reply){
@@ -561,7 +561,7 @@ void Network::syncRequestFinished_getPersonalImage(QNetworkReply* reply){
         auto const encoded = object["image"].toString().toLatin1();
         QPixmap p;
         p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
-        main_interface->getPersonalSettingsLabel()->setPixmap(p.scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+        //main_interface->getPersonalSettingsLabel()->setPixmap(p.scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
     }
 
 }
@@ -570,22 +570,22 @@ void Network::syncRequestFinished_setVersions(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QString html = document.object().value("content").toString();
-    main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','"+html+"');} setContent();",[=] (const QVariant &v){
+    /*main_interface->getWebPage()->page()->runJavaScript("function setContent(){return $('#content').froalaEditor('html.set','"+html+"');} setContent();",[=] (const QVariant &v){
     });
-
+	*/
 }
 
 void Network::syncRequestFinished_getVersions(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonArray array = document.array();
-    while (main_interface->getVersionsBox()->count() > 1)
+   /* while (main_interface->getVersionsBox()->count() > 1)
         main_interface->getVersionsBox()->removeItem(main_interface->getVersionsBox()->count() - 1);
     foreach (const QJsonValue & v, array){
         main_interface->getVersionsBox()->addItem(v.toObject().value("version").toString().mid(2,10)+ ":" + v.toObject().value("version").toString().mid(11,8),v.toObject().value("version").toString());
         QCoreApplication::processEvents();
     }
-
+	*/
 }
 
 void Network::syncRequestFinished_createCategory(QNetworkReply* reply){
@@ -598,7 +598,7 @@ void Network::syncRequestFinished_getCategoryList(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonArray array = document.array();
-    while (main_interface->getCustomizationInterface()->choose_category_box->count() > 1)
+    /*while (main_interface->getCustomizationInterface()->choose_category_box->count() > 1)
         main_interface->getCustomizationInterface()->choose_category_box->removeItem(main_interface->getCustomizationInterface()->choose_category_box->count() - 1);
     foreach (const QJsonValue & v, array){
         main_interface->getCustomizationInterface()->choose_category_box->addItem(v.toObject().value("category").toString(),v.toObject().value("category").toString());
@@ -608,14 +608,14 @@ void Network::syncRequestFinished_getCategoryList(QNetworkReply* reply){
         main_interface->getCustomizationInterface()->choose_category_box->setCurrentIndex(main_interface->getCustomizationInterface()->choose_category_box->findData(category_name));
         category_name = "";
     }
-
+	*/
 }
 
 void Network::syncRequestFinished_getCategoryListForMainInterface(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonArray array = document.array();
-    while (main_interface->getCategoryBox()->count() > 1)
+   /* while (main_interface->getCategoryBox()->count() > 1)
         main_interface->getCategoryBox()->removeItem(main_interface->getCategoryBox()->count() - 1);
     for (int i = 0; i < main_interface->getAllCategoriesBox()->count();i++)
         if (main_interface->getAllCategoriesBox()->itemData(i).toString() != "Показать все заметки" && main_interface->getAllCategoriesBox()->itemData(i).toString() != "Показать только свои заметки")
@@ -627,14 +627,14 @@ void Network::syncRequestFinished_getCategoryListForMainInterface(QNetworkReply*
     }
     main_interface->getAllCategoriesBox()->addItem("Групповые",QVariant("Показать только групповые заметки"));
 
-
+	*/
 }
 
 void Network::syncRequestFinished_getCategoryData(QNetworkReply* reply){
 
     QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonObject object = document.object();
-    main_interface->getCustomizationInterface()->category_name_edit->setText(object["category"].toString());
+   /* main_interface->getCustomizationInterface()->category_name_edit->setText(object["category"].toString());
     main_interface->getCustomizationInterface()->text_color_show_label->setStyleSheet("QLabel {"
                                                                                       "border-style: solid;"
                                                                                       "border-width: 1px;"
@@ -663,12 +663,12 @@ void Network::syncRequestFinished_getCategoryData(QNetworkReply* reply){
         p.loadFromData(QByteArray::fromBase64(encoded), "JPG");
         main_interface->getCustomizationInterface()->note_back_image->setPixmap(p.scaled(QSize(155,100),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
     }
-
+	*/
 }
 
 void Network::syncRequestFinished_customizeByCurrentCategory(QNetworkReply* reply){
 
-    QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
+    /*QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
     QJsonObject object = document.object();
     QString color;
     if (object["category_color"].toString() == "") color = "#000000";
@@ -683,7 +683,7 @@ void Network::syncRequestFinished_customizeByCurrentCategory(QNetworkReply* repl
     if (object["image"].toString() != "")
         main_interface->getWebPage()->page()->runJavaScript("function setBackground(){$('body').css('background', 'url(data:image/png;base64," + back + ") no-repeat center center fixed');$('body').css('background-size', 'cover');} setBackground();",[=](const QVariant &v){
         });
-
+*/
 }
 
 void Network::syncRequestFinished_createGroup(QNetworkReply* reply){

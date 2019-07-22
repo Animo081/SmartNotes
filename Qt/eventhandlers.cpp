@@ -2,51 +2,53 @@
 #include "eventhandlers.h"
 #include "gui.h"
 #include "maininterface.h"
+#include "logininterface.h"
+#include "registerinterface.h"
 
 EventHandlers::EventHandlers(std::shared_ptr<Gui> gui,std::shared_ptr<Network> network):
 	QObject(nullptr), network_(std::move(network)), gui_(std::move(gui)){ }
 
 EventHandlers::~EventHandlers(){}
 
-void EventHandlers::bindDefaultRegisterInterface(Interface* register_mainInterface){
-/*
-    QMainWindow::connect(cancelButton, &QPushButton::clicked, [=] { cancelRegisterInterface(register_mainInterface); });
-    QMainWindow::connect(okButton, &QPushButton::clicked, [=] { registrationProcessInit(usernameEdit,passwordEdit,passwordRepeatEdit,emailEdit,register_mainInterface); });
-*/
+void EventHandlers::bindDefaultRegisterInterface(const RegisterInterface* registerInterface) const {
+
+	connect(registerInterface->getSubmitRegistrationButton(), &QPushButton::clicked, [=] { 
+		if (registerInterface->getPasswordEditText() == registerInterface->getRepeatPasswordEditText() &&
+			registerInterface->getUsernameRegex().exactMatch(registerInterface->getUsernameEditText()) &&
+			registerInterface->getPasswordRegex().exactMatch(registerInterface->getPasswordEditText()) &&
+			registerInterface->getEmailRegex().exactMatch(registerInterface->getEmailEditText())) {
+		}
+			/*network_->registration(
+				registerInterface->getUsernameEditText(),
+				registerInterface->getPasswordEditText(),
+				registerInterface->getEmailEditText(),
+				registerInterface
+			);*/
+	});
+	connect(registerInterface->getCancelButton(), &QPushButton::clicked, [=] {
+		gui_->destroyCurrentInterface();
+		gui_->createLogInInterface();
+	});
 }
 
-void EventHandlers::cancelRegisterInterface(Interface* register_mainInterface){
-/*
-    gui->finishRegistration();
-*/
+void EventHandlers::bindDefaultLogInInterface(const LogInInterface* logInInterface) const {
+	
+	connect(logInInterface->getSignInButton(), &QPushButton::clicked, [=] {
+		 /*network_->signIn(
+			 logInInterface->getUsernameEditText(),
+			 logInInterface->getPasswordEditText(),
+			 logInInterface
+		 );*/
+		gui_->destroyCurrentInterface();
+		gui_->createMainInterface();
+	});
+	connect(logInInterface->getSignUpButton(), &QPushButton::clicked, [=] {
+		gui_->destroyCurrentInterface();
+		gui_->createRegisterInterface();
+	});
 }
 
-void EventHandlers::registrationProcessInit(QLineEdit* usernameEdit, QLineEdit* passwordEdit, QLineEdit* passwordRepeatEdit, QLineEdit* emailEdit, Interface* register_mainInterface){
-/*	 if (passwordEdit->text() == passwordRepeatEdit->text())
-        network->registration(usernameEdit->text(),passwordEdit->text(),emailEdit->text(),register_mainInterface);
-*/
-}
-
-void EventHandlers::bindDefaultLogInInterface(Interface* log_in_mainInterface){
-	/*
-    QMainWindow::connect(signInButton, &QPushButton::clicked, [=] { signInButtonBind(usernameEdit,passwordEdit,log_in_mainInterface); });
-    QMainWindow::connect(registerButton, &QPushButton::clicked, [=] { registerButtonBind(); });
-	*/
-}
-
-void EventHandlers::signInButtonBind(QLineEdit* usernameEdit,QLineEdit* passwordEdit,Interface* log_in_mainInterface){
-	/*
-    network->signIn(usernameEdit->text(),passwordEdit->text(),log_in_mainInterface);
-	*/
-}
-
-void EventHandlers::registerButtonBind(){
-	/*
-    gui->createRegisterInterface();
-	*/
-}
-
-void EventHandlers::bindDefaultMainInterface(MainInterface* main_mainInterface){
+void EventHandlers::bindDefaultMainInterface(const MainInterface* main_mainInterface) const {
 	/*
     this->mainInterface = main_mainInterface;
 

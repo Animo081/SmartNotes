@@ -8,6 +8,11 @@ void SmartNotes::startApplication(){
     network_->setGui(gui_);
     gui_->startInitialization(gui_,network_);
 
-    application_->exec();
+	QFile File("style.qss");
+	File.open(QFile::ReadOnly);
+	QString StyleSheet = QLatin1String(File.readAll());
 
+	application_->setStyleSheet(StyleSheet);
+
+    application_->exec();
 }

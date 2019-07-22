@@ -1,0 +1,130 @@
+QWidget{
+
+	margin: 2px;
+}
+
+QLabel{
+
+	color: white;
+    font-size: 24px;
+	font-family: fantasy;
+}
+
+QLineEdit{
+
+	color: white;
+	font-family: fantasy;
+	font-size: 18px;
+	background-color: rgba(0, 0, 0, .2);
+	border: none;
+	padding: 2px;
+
+	min-height: 28px;
+	min-width: 250px;
+}
+
+QLineEdit:hover{
+
+	background-color: rgba(0, 0, 0, .5);
+}
+
+QPushButton{
+
+	color: white;
+	font-size: 19px;
+	font-family: fantasy;
+	background-color: rgba(0, 0, 0, .3);
+	border: none;
+	padding: 7px;
+
+	min-height: 30px;
+	min-width: 108px;
+}
+
+QPushButton:hover{
+
+	background-color: rgba(0, 0, 0, .6);
+}
+
+QCheckBox{
+
+	color: white;
+	font-size: 15px;
+	border: none;
+}
+
+RegisterInterface{
+
+	background-color: rgba(0, 0, 0, .2);
+	border: none;
+}
+
+RegisterInterface QLabel{
+
+	margin-left: 75px;
+}
+
+RegisterInterface QLineEdit{
+
+	background-color: rgba(0, 0, 0, .4);
+}
+
+RegisterInterface QLineEdit:hover{
+
+	background-color: rgba(0, 0, 0, .6);
+}
+
+RegisterInterface QPushButton#cancelRegistrationButton{
+	
+	background-color: transparent;
+
+	height: 40px;
+	width: 40px;
+	min-height: 0px;
+	min-width: 0px;
+	padding: 0px;
+	margin: 20px;
+}
+
+RegisterInterface QPushButton#cancelRegistrationButton:hover{
+
+	background-color: transparent;
+}
+
+RegisterInterface QPushButton#submitRegistrationButton{
+
+	background-color: rgba(0, 0, 0, .5);
+
+	min-width: 400px;
+	min-height: 40px;
+	font-size:24px;
+	padding: 0px;
+	margin: 10px;
+}
+
+RegisterInterface QPushButton#submitRegistrationButton:hover{
+
+	background-color: rgba(0, 0, 0, .8);
+}
+
+MainInterface QListWidget#{ 
+
+	font-family: "Helvetica";
+
+	max-width: 300px;
+	max-height: 100px;
+}
+
+MainInterface QListWidgetItem{
+
+	font-family: "Times";
+	font-size: 15px;
+
+	max-width: 100px;
+	max-height: 50px;	
+}
+
+MainInterface QPushButton#hideCurrentNoteSectionButton{
+
+	max-width:20px;
+}

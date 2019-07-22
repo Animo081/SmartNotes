@@ -1,4 +1,4 @@
-#ifndef MAININTERFACE_H
+﻿#ifndef MAININTERFACE_H
 #define MAININTERFACE_H
 
 #include "interface.h"
@@ -12,191 +12,221 @@
 #include <QTextEdit>
 #include <QColorDialog>
 
-struct PersonalInfo{
-    PersonalInfo(EventHandlers* event_handlers) { this->event_handler = event_handlers; }
-    ~PersonalInfo();
+class Tools;
 
-    EventHandlers* event_handler;
-
-    QWidget* personal_info_window;
-
-    QGridLayout* personal_section_layout;
-
-    QGridLayout* personal_section_top_layout;
-
-    QGridLayout* personal_section_edits_layout;
-    QLabel* user_photo_label;
-    QLabel* first_name_label;
-    QLabel* last_name_label;
-    QLabel* phone_number_label;
-    QLabel* email_label;
-
-    QLineEdit* first_name_edit;
-    QLineEdit* last_name_edit;
-    QLineEdit* phone_number_edit;
-    QLineEdit* email_edit;
-
-    QLabel* description_label;
-    QTextEdit* description_edit;
-
-    QVBoxLayout* button_controls_layout;
-    QPushButton* ok_button;
-    QPushButton* cancel_button;
-};
-
-struct Customization{
-    Customization(EventHandlers* event_handlers) { this->event_handler = event_handlers; }
-    ~Customization();
-
-    EventHandlers* event_handler;
-
-    QWidget* customization_window;
-
-    QGridLayout* customization_section_layout;
-
-    QGridLayout* not_description_layout;
-
-    QLabel* choose_category_label;
-    QComboBox* choose_category_box;
-
-    QLabel* category_name_label;
-    QLineEdit* category_name_edit;
-
-    QGridLayout* color_picker_layout;
-
-    QLabel* text_color_label;
-    QLabel* text_color_show_label;
-
-    QLabel* background_color_label;
-    QLabel* background_color_show_label;
-
-    QLabel* item_customization_label;
-
-    QLabel* note_back_label;
-    QLabel* note_back_image;
-
-    QLabel* description_label;
-    QTextEdit* description_edit;
-
-    QHBoxLayout* controls_layout;
-
-    QPushButton* save_button;
-    QPushButton* cancel_button;
-    QPushButton* delete_button;
-
-    QColorDialog* color_dialog;
-
-};
-
-struct Group{
-    Group(EventHandlers* event_handlers) { this->event_handler = event_handlers; }
-    ~Group();
-
-    QWidget* group_window;
-
-    QLabel* my_groups_label;
-    QLabel* new_group_label;
-    QLabel* members_label;
-    QLabel* invite_label;
-    QLabel* notes_label;
-
-    QPushButton* cancel_button;
-    QPushButton* create_group_button;
-    QPushButton* invite_button;
-    QPushButton* share_button;
-
-    QLineEdit* look_for_users_edit;
-    QLineEdit* new_group_edit;
-    QCompleter* users;
-    QComboBox* my_groups_box;
-    QComboBox* group_members_box;
-    QComboBox* note_for_share_box;
-
-    QHBoxLayout* create_layout;
-    QHBoxLayout* invite_layout;
-    QGridLayout* share_layout;
-
-    QGridLayout* group_section_layout;
-
-    EventHandlers* event_handler;
-};
-
-class MainInterface: public Interface, public QMainWindow{
+class MainInterface: public QWidget, public Interface {
+	Q_OBJECT
 public:
-    MainInterface(QWidget*,EventHandlers*);
-    virtual ~MainInterface();
-	virtual void createInterface(EventHandlers* eventHandlers) override;
+    MainInterface(std::shared_ptr<Tools> tools, QWidget* parent = nullptr);
+	virtual ~MainInterface();
+	virtual void createInterface(const EventHandlers* eventHandlers) override;
 	virtual void createInterfaceElements() override;
-	virtual void placeInterfaceElements() override;
-	virtual void setAttributeToAllWidgets(const Qt::WidgetAttribute&&) override;
-	virtual void setSizePolicyToAllWidgets(const QSizePolicy::Policy&&,
-		const QSizePolicy::Policy&&) override;
+	virtual void placeInterfaceElements() const override;
 
-    QGridLayout* createDefaultUserSection();
-    QGridLayout* createDefaultAllNotesSection();
-    QGridLayout* createDefaultCurrentNoteSection();
+	void createUserSection();
+	void placeUserSection() const;
+
+	void createAllNotesSection();
+	void placeAllNotesSection() const;
+
+	void createCurrentNoteSection();
+	void placeCurrentNoteSection() const;
+
+	virtual void setAttributeToAllWidgets(
+		const Qt::WidgetAttribute&& attribute) const override;
+	virtual void setSizePolicyToAllWidgets(
+		const QSizePolicy::Policy&& horizontal,
+		const QSizePolicy::Policy&& vertical) const override;
+
+    
+
+
     void showDefaultCurrentNoteSection();
     void hideDefaultCurrentNoteSection();
 
     QSize getWindowDefaultSize();
     void addNewRowInNotesList(const int&, QString, QString, QString, QString);
-    QPushButton* getSubmitButton();
+    /*QPushButton* getSubmitButton();
     QWebEngineView* getWebPage();
     QComboBox* getCategoryBox();
     QComboBox* getAllCategoriesBox();
     QComboBox* getVersionsBox();
     QLineEdit* getNameEdit();
-    QLabel* getPersonalSettingsLabel();
+    QPushButton* getPersonalSettingsButton();*/
 
-    void createDefaultPersonalInfo(EventHandlers*);
-    PersonalInfo* getPersonalInterface();
+    //void createDefaultPersonalInfo(EventHandlers*);
+    //PersonalInfo* getPersonalInterface();
 
-    void createDefaultCustomization(EventHandlers*);
-    Customization* getCustomizationInterface();
+    //void createDefaultCustomization(EventHandlers*);
+    //Customization* getCustomizationInterface();
 
-    void createDefaultGroup(EventHandlers*);
-    Group* getGroupInterface();
+    //void createDefaultGroup(EventHandlers*);
+
+	virtual void show() override;
+	virtual void hide() override;
+	virtual void resize(const int& width, const int& height) override;
+	virtual void resize(const int&& width, const int&& height) override;
+
+	void paintEvent(QPaintEvent* event) override;
 private:
-    QWidget* window;
-    QSize window_size;
+	QScopedPointer<QGridLayout> mainInterfaceLayout_;
 
-    QGridLayout* main_layout;
+	//User section
 
-    QGridLayout* user_section_layout;
-    QVBoxLayout* user_facilities_layout;
-    QLabel* personal_settings_label;
-    QLabel* categories_settings_label;
-    QLabel* group_manager_label;
-    QLabel* app_settings_label;
-    QLabel* sign_out_label;
+	QScopedPointer<QGridLayout> userSectionLayout_;
 
-    QGridLayout* all_notes_section_layout;
-    QListWidget *all_notes_list;
-    QListWidgetItem* new_note_row_item;
-    QComboBox* notes_sort_box;
-    QComboBox* note_categories_box;
-    QHBoxLayout* notes_sort_layout;
-    QPushButton* hideCurrentNoteSection;
+    QScopedPointer<QPushButton> personalSettingsButton_;
 
-    QGridLayout* current_note_section_layout;
-    QGridLayout* current_note_panel_layout;
-    QLineEdit* current_note_name_edit;
-    QHBoxLayout* current_note_options_layout;
-    QComboBox* choose_current_note_category_box;
-    QComboBox* choose_current_note_version_box;
-    QLabel* choose_current_note_category_label;
-    QLabel* current_note_versions_label;
-    QLabel* delete_current_note_label;
-    QWebEngineView* note_field;
-    QPushButton* submit_current_note_button;
+	QScopedPointer<QVBoxLayout> userFacilitiesLayout_;
 
-    QErrorMessage* warningMessage;
+	QScopedPointer<QPushButton> customizationButton_;
+	QScopedPointer<QPushButton> groupsManagerButton_;
+	QScopedPointer<QPushButton> appSettingsButton_;
+	QScopedPointer<QPushButton> signOutButton_;
 
-    PersonalInfo* personal_info;
+	//
+	//All notes section
 
-    Customization* customization;
+    QScopedPointer<QGridLayout> allNotesSectionLayout_;
 
-    Group* group;
+	QScopedPointer<QHBoxLayout> displayedNotesLimitersLayout_;
+
+	QScopedPointer<QComboBox> notesSortsBox_;
+	QScopedPointer<QComboBox> notesCategoriesBox_;
+
+    QScopedPointer<QListWidget> allNotesList_;
+	QScopedPointer<QListWidgetItem> newNotesListItem_;
+
+	//
+	//Current note section
+
+	QScopedPointer<QPushButton> hideCurrentNoteSectionButton_;
+
+	QScopedPointer<QGridLayout> currentNoteSectionLayout_;
+
+	QScopedPointer<QGridLayout> currentNoteTopPanelLayout_;
+
+	QScopedPointer<QLineEdit> currentNoteNameEdit_;
+
+	QScopedPointer<QHBoxLayout> currentNoteOptionsLayout_;
+
+	QScopedPointer<QComboBox> chooseCurrentNoteCategoryBox_;
+	QScopedPointer<QComboBox> chooseCurrentNoteVersionBox_;
+
+	QScopedPointer<QPushButton> chooseCurrentNoteCategoryButton_;
+	QScopedPointer<QPushButton> chooseCurrentNoteVersionsButton_;
+	QScopedPointer<QPushButton> deleteCurrentNoteButton_;
+
+	QScopedPointer<QWebEngineView> currentNoteField_;
+
+	QScopedPointer<QPushButton> saveCurrentNoteButton_;
+
+	//
+
+	std::shared_ptr<Tools> tools_;
+
+	struct PersonalInfoPanel: public QWidget { 
+		PersonalInfoPanel(EventHandlers* event_handlers);
+		//~PersonalInfoPanel();
+
+		QScopedPointer<QGridLayout> personal_section_layout;
+
+		QScopedPointer<QGridLayout> personal_section_top_layout;
+
+		QScopedPointer<QGridLayout> personal_section_edits_layout;
+		QScopedPointer<QLabel> user_photo_label;
+		QScopedPointer<QLabel> first_name_label;
+		QScopedPointer<QLabel> last_name_label;
+		QScopedPointer<QLabel> phone_number_label;
+		QScopedPointer<QLabel> email_label;
+
+		QScopedPointer<QLineEdit> first_name_edit;
+		QScopedPointer<QLineEdit> last_name_edit;
+		QScopedPointer<QLineEdit> phone_number_edit;
+		QScopedPointer<QLineEdit> email_edit;
+
+		QScopedPointer<QLabel> description_label;
+		QScopedPointer<QTextEdit> description_edit;
+
+		QScopedPointer<QVBoxLayout> button_controls_layout;
+		QScopedPointer<QPushButton> ok_button;
+		QScopedPointer<QPushButton> cancel_button;
+	};
+
+	QScopedPointer<PersonalInfoPanel> personalInfoPanel_;
+
+	struct CustomizationPanel: public QWidget {
+		CustomizationPanel(EventHandlers* event_handlers);
+		//~CustomizationPanel();
+
+		QScopedPointer<QGridLayout> customization_section_layout;
+
+		QScopedPointer<QGridLayout> not_description_layout;
+
+		QScopedPointer<QLabel> choose_category_label;
+		QScopedPointer<QComboBox> choose_category_box;
+
+		QScopedPointer<QLabel> category_name_label;
+		QScopedPointer<QLineEdit> category_name_edit;
+
+		QScopedPointer<QGridLayout> color_picker_layout;
+
+		QScopedPointer<QLabel> text_color_label;
+		QScopedPointer<QLabel> text_color_show_label;
+
+		QScopedPointer<QLabel> background_color_label;
+		QScopedPointer<QLabel> background_color_show_label;
+
+		QScopedPointer<QLabel> item_customization_label;
+
+		QScopedPointer<QLabel> note_back_label;
+		QScopedPointer<QLabel> note_back_image;
+
+		QScopedPointer<QLabel> description_label;
+		QScopedPointer<QTextEdit> description_edit;
+
+		QScopedPointer<QHBoxLayout> controls_layout;
+
+		QScopedPointer<QPushButton> save_button;
+		QScopedPointer<QPushButton> cancel_button;
+		QScopedPointer<QPushButton> delete_button;
+
+		QScopedPointer<QColorDialog> color_dialog;
+
+	};
+
+	QScopedPointer<CustomizationPanel> customizationPanel_;
+
+	struct GroupsPanel: public QWidget {
+		GroupsPanel(EventHandlers* event_handlers);
+		//~GroupsPanel();
+
+		QScopedPointer<QLabel> my_groups_label;
+		QScopedPointer<QLabel> new_group_label;
+		QScopedPointer<QLabel> members_label;
+		QScopedPointer<QLabel> invite_label;
+		QScopedPointer<QLabel> notes_label;
+
+		QScopedPointer<QPushButton> cancel_button;
+		QScopedPointer<QPushButton> create_group_button;
+		QScopedPointer<QPushButton> invite_button;
+		QScopedPointer<QPushButton> share_button;
+
+		QScopedPointer<QLineEdit> look_for_users_edit;
+		QScopedPointer<QLineEdit> new_group_edit;
+		QScopedPointer<QCompleter> users;
+		QScopedPointer<QComboBox> my_groups_box;
+		QScopedPointer<QComboBox> group_members_box;
+		QScopedPointer<QComboBox> note_for_share_box;
+
+		QScopedPointer<QHBoxLayout> create_layout;
+		QScopedPointer<QHBoxLayout> invite_layout;
+		QScopedPointer<QGridLayout> share_layout;
+
+		QScopedPointer<QGridLayout> group_section_layout;
+	};
+
+	QScopedPointer<GroupsPanel> groupsPanel_;
 };
 
 #endif // MAININTERFACE_H

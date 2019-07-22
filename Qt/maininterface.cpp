@@ -1,269 +1,249 @@
 #include "maininterface.h"
+#include "gui.h"
 
-MainInterface::MainInterface(QWidget* window, EventHandlers* event_handlers): QMainWindow(nullptr){
+MainInterface::MainInterface(std::shared_ptr<Tools> tools, QWidget* parent):
+	tools_(std::move(tools)), QWidget(parent) {}
 
-    this->window = window;
-    window_size = window->size();
+MainInterface::~MainInterface() {}
 
-}
+void MainInterface::createInterface(const EventHandlers* eventHandlers) {
 
-MainInterface::~MainInterface(){
+	createInterfaceElements();
+	placeInterfaceElements();
 
-    delete personal_settings_label;
-    delete categories_settings_label;
-    delete group_manager_label;
-    delete app_settings_label;
-    delete sign_out_label;
-    delete user_facilities_layout;
-    delete user_section_layout;
+	setAttributeToAllWidgets(Qt::WA_DeleteOnClose);
+	tools_->setSizePolicyToQWidgets(QSizePolicy::Fixed, QSizePolicy::Fixed, {
+		personalSettingsButton_.get(),
+		customizationButton_.get(),
+		groupsManagerButton_.get(),
+		appSettingsButton_.get(),
+		signOutButton_.get(),
+	});
 
-    delete new_note_row_item;
-    delete all_notes_list;
-    delete notes_sort_box;
-    delete note_categories_box;
-    delete notes_sort_layout;
-    delete all_notes_section_layout;
-
-    delete current_note_name_edit;
-    delete choose_current_note_category_box;
-    delete choose_current_note_version_box;
-    delete choose_current_note_category_label;
-    delete current_note_versions_label;
-    delete delete_current_note_label;
-    delete note_field;
-    delete submit_current_note_button;
-    delete current_note_options_layout;
-    delete current_note_panel_layout;
-    delete current_note_section_layout;
-
-    delete window;
-}
-
-void MainInterface::createInterface(EventHandlers* eventHandlers) {
-
+	eventHandlers->bindDefaultMainInterface(this);
 }
 
 void MainInterface::createInterfaceElements(){
 
-    main_layout = new QGridLayout(window);
+    mainInterfaceLayout_.reset(new QGridLayout(this));
 
-    hideCurrentNoteSection = new QPushButton(tr("<"));
-    hideCurrentNoteSection->setMaximumWidth(20);
-    hideCurrentNoteSection->setObjectName("hideCurrentNoteSection");
-    hideCurrentNoteSection->hide();
-
-    main_layout->addLayout(createDefaultUserSection(),0,0);
-    main_layout->addLayout(createDefaultAllNotesSection(),0,1);
-    main_layout->addWidget(hideCurrentNoteSection,0,2);
-    main_layout->addLayout(createDefaultCurrentNoteSection(),0,3);
+	createUserSection();
+	createAllNotesSection();
+	createCurrentNoteSection();
 }
 
-void MainInterface::placeInterfaceElements() {
+void MainInterface::placeInterfaceElements() const {
 
+	placeUserSection();
+	placeAllNotesSection();
+	placeCurrentNoteSection();
+
+	mainInterfaceLayout_->addLayout(userSectionLayout_.get(), 0, 0);
+	mainInterfaceLayout_->addLayout(allNotesSectionLayout_.get(), 0, 1);
+	mainInterfaceLayout_->addWidget(hideCurrentNoteSectionButton_.get(), 0, 2);
+	mainInterfaceLayout_->addLayout(currentNoteSectionLayout_.get(), 0, 3);
 }
 
-void MainInterface::setAttributeToAllWidgets(const Qt::WidgetAttribute&&) {
+void MainInterface::createUserSection() {
 
+	userSectionLayout_.reset(new QGridLayout());
+	userSectionLayout_->setObjectName("userSectionLayout");
+
+	personalSettingsButton_.reset(new QPushButton());
+	personalSettingsButton_->setToolTip("Account");
+	personalSettingsButton_->setIcon(QIcon(":/images/images/default.png"));
+	personalSettingsButton_->setIconSize(QSize(85, 85));	
+
+	userFacilitiesLayout_.reset(new QVBoxLayout());
+
+	customizationButton_.reset(new QPushButton());
+	customizationButton_->setToolTip("Customization");
+	customizationButton_->setIcon(QIcon(":/images/images/category.png"));
+	customizationButton_->setIconSize(QSize(85, 85));
+
+	groupsManagerButton_.reset(new QPushButton());
+	groupsManagerButton_->setToolTip("Groups");
+	groupsManagerButton_->setIcon(QIcon(":/images/images/group.png"));
+	groupsManagerButton_->setIconSize(QSize(85, 85));
+
+	appSettingsButton_.reset(new QPushButton());
+	appSettingsButton_->setToolTip("Settings");
+	appSettingsButton_->setIcon(QIcon(":/images/images/settings.png"));
+	appSettingsButton_->setIconSize(QSize(85, 85));
+	
+	signOutButton_.reset(new QPushButton());
+	signOutButton_->setToolTip("Sign out");
+	signOutButton_->setIcon(QIcon(":/images/images/logout.png"));
+	signOutButton_->setIconSize(QSize(85, 85));
 }
 
-void MainInterface::setSizePolicyToAllWidgets(const QSizePolicy::Policy&&, 
-	const QSizePolicy::Policy&&) {
+void MainInterface::placeUserSection() const {
+	
+	userFacilitiesLayout_->addWidget(customizationButton_.get());
+	userFacilitiesLayout_->addWidget(groupsManagerButton_.get());
+	userFacilitiesLayout_->addWidget(appSettingsButton_.get());
+	userFacilitiesLayout_->addWidget(signOutButton_.get());
 
+	userSectionLayout_->addWidget(personalSettingsButton_.get(), 0, 0, Qt::AlignTop);
+	userSectionLayout_->addLayout(userFacilitiesLayout_.get(), 1, 0, Qt::AlignBottom);
 }
 
-QGridLayout* MainInterface::createDefaultUserSection(){
+void MainInterface::createAllNotesSection() {
 
-    user_section_layout = new QGridLayout();
-    user_section_layout->setMargin(0);
-    user_section_layout->setSpacing(20);
+	allNotesSectionLayout_.reset(new QGridLayout());
 
-    personal_settings_label = new QLabel();
-    personal_settings_label->setPixmap(QPixmap(":/images/images/default.png").scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    personal_settings_label->setToolTip("Аккаунт");
-    personal_settings_label->setObjectName("personal_settings_label");
-    personal_settings_label->setMaximumWidth(85);
-    personal_settings_label->setMaximumHeight(85);
+	displayedNotesLimitersLayout_.reset(new QHBoxLayout());
 
-    user_facilities_layout = new QVBoxLayout();
+	notesSortsBox_.reset(new QComboBox());
+	notesSortsBox_->addItem("По дате (сн. новые)", QVariant("По дате добавление (от новых к старым)"));
+	notesSortsBox_->addItem("По дате (сн. старые)", QVariant("По дате добавление (от старых к новым)"));
+	notesSortsBox_->addItem("Сначала свои", QVariant("По принадлежности (сначала свои)"));
+	notesSortsBox_->addItem("Сначала групповые", QVariant("По принадлежности (сначала записки групп)"));
+	notesSortsBox_->addItem("По алфавиту", QVariant("По алфавиту"));
+	notesSortsBox_->setCurrentIndex(0);
 
-    categories_settings_label = new QLabel();
-    group_manager_label = new QLabel();
-    app_settings_label = new QLabel();
-    sign_out_label = new QLabel();
+	notesCategoriesBox_.reset(new QComboBox());
+	notesCategoriesBox_->addItem("Все", QVariant("Показать все заметки"));
+	notesCategoriesBox_->addItem("Свои", QVariant("Показать только свои заметки"));
+	notesCategoriesBox_->addItem("Групповые", QVariant("Показать только групповые заметки"));
+	notesCategoriesBox_->setMaxVisibleItems(5);
+	notesCategoriesBox_->setCurrentIndex(0);
 
-    categories_settings_label->setPixmap(QPixmap(":/images/images/category.png").scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    group_manager_label->setPixmap(QPixmap(":/images/images/group.png").scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    app_settings_label->setPixmap(QPixmap(":/images/images/settings.png").scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    sign_out_label->setPixmap(QPixmap(":/images/images/logout.png").scaled(QSize(85,85),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+	allNotesList_.reset(new QListWidget(0));
+	allNotesList_->setObjectName("allNotesList");
 
-    categories_settings_label->setToolTip("Категории");
-    group_manager_label->setToolTip("Группы");
-    app_settings_label->setToolTip("Настройки");
-    sign_out_label->setToolTip("Выход");
-
-    categories_settings_label->setObjectName("categories_settings_label");
-    group_manager_label->setObjectName("group_manager_label");
-    app_settings_label->setObjectName("app_settings_label");
-    sign_out_label->setObjectName("sign_out_label");
-
-    categories_settings_label->setMaximumWidth(85);
-    group_manager_label->setMaximumWidth(85);
-    app_settings_label->setMaximumWidth(85);
-    sign_out_label->setMaximumWidth(85);
-
-    categories_settings_label->setMaximumHeight(85);
-    group_manager_label->setMaximumHeight(85);
-    app_settings_label->setMaximumHeight(85);
-    sign_out_label->setMaximumHeight(85);
-
-    user_facilities_layout->addWidget(categories_settings_label,0,Qt::AlignBottom);
-    user_facilities_layout->addWidget(group_manager_label,0,Qt::AlignBottom);
-    user_facilities_layout->addWidget(app_settings_label,0,Qt::AlignBottom);
-    user_facilities_layout->addWidget(sign_out_label,0,Qt::AlignBottom);
-
-    user_section_layout->addWidget(personal_settings_label,0,0,Qt::AlignTop);
-    user_section_layout->addLayout(user_facilities_layout,1,0,Qt::AlignBottom);
-
-    return user_section_layout;
-
+	newNotesListItem_.reset(new QListWidgetItem(tr("+"), allNotesList_.get()));
+	//newNotesListItem_->setSizeHint(QSize(100, 50));
+	newNotesListItem_->setTextAlignment(Qt::AlignCenter);
+	newNotesListItem_->setWhatsThis("newNotesListItem_");
 }
 
-QGridLayout* MainInterface::createDefaultAllNotesSection(){
+void MainInterface::placeAllNotesSection() const {
 
-    all_notes_section_layout = new QGridLayout();
+	displayedNotesLimitersLayout_->addWidget(notesSortsBox_.get());
+	displayedNotesLimitersLayout_->addWidget(notesCategoriesBox_.get());
 
-    all_notes_list = new QListWidget();
-    all_notes_list->setObjectName("all_notes_list");
-    all_notes_list->setMaximumWidth(300);
-    all_notes_list->setMinimumWidth(100);
-    all_notes_list->setFont(QFont("Helvetica"));
-
-    new_note_row_item = new QListWidgetItem(tr("+"), all_notes_list);
-    new_note_row_item->setSizeHint(QSize(100,50));
-    new_note_row_item->setTextAlignment(Qt::AlignCenter);
-    new_note_row_item->setFont(QFont("Times",15));
-    new_note_row_item->setWhatsThis("add_new_row_item");
-
-    notes_sort_box = new QComboBox();
-    notes_sort_box->addItem("По дате (сн. новые)", QVariant("По дате добавление (от новых к старым)"));
-    notes_sort_box->addItem("По дате (сн. старые)", QVariant("По дате добавление (от старых к новым)"));
-    notes_sort_box->addItem("Сначала свои", QVariant("По принадлежности (сначала свои)"));
-    notes_sort_box->addItem("Сначала групповые", QVariant("По принадлежности (сначала записки групп)"));
-    notes_sort_box->addItem("По алфавиту", QVariant("По алфавиту"));
-    notes_sort_box->setCurrentIndex(0);
-
-    note_categories_box = new QComboBox();
-    note_categories_box->setMaxVisibleItems(5);
-    note_categories_box->addItem("Все",QVariant("Показать все заметки"));
-    note_categories_box->addItem("Свои",QVariant("Показать только свои заметки"));
-    note_categories_box->addItem("Групповые",QVariant("Показать только групповые заметки"));
-    note_categories_box->setCurrentIndex(0);
-
-    notes_sort_layout = new QHBoxLayout();
-    notes_sort_layout->addWidget(notes_sort_box);
-    notes_sort_layout->addWidget(note_categories_box);
-
-    all_notes_section_layout->addLayout(notes_sort_layout,0,0);
-    all_notes_section_layout->addWidget(all_notes_list,1,0);
-
-    return all_notes_section_layout;
+	allNotesSectionLayout_->addLayout(displayedNotesLimitersLayout_.get(), 0, 0);
+	allNotesSectionLayout_->addWidget(allNotesList_.get(), 1, 0);
 }
 
-QGridLayout* MainInterface::createDefaultCurrentNoteSection(){
+void MainInterface::createCurrentNoteSection() {
 
-    current_note_section_layout = new QGridLayout();
+	hideCurrentNoteSectionButton_.reset(new QPushButton(tr("<")));
+	hideCurrentNoteSectionButton_->setObjectName("hideCurrentNoteSectionButton");
 
-    current_note_panel_layout = new QGridLayout();
+	currentNoteSectionLayout_.reset(new QGridLayout());
 
-    current_note_name_edit = new QLineEdit();
-    current_note_name_edit->setPlaceholderText("Set name");
-    current_note_name_edit->setMaximumWidth(200);
+	currentNoteTopPanelLayout_.reset(new QGridLayout());
 
-    current_note_options_layout = new QHBoxLayout();
-    current_note_options_layout->setMargin(0);
-    current_note_options_layout->setSpacing(40);
+	currentNoteNameEdit_.reset(new QLineEdit());
+	currentNoteNameEdit_->setPlaceholderText("Set name");
+	currentNoteNameEdit_->setMaximumWidth(200);
 
-    choose_current_note_category_box = new QComboBox();
-    choose_current_note_category_box->hide();
-    choose_current_note_category_box->addItem("Без категории",QVariant("Нет категории"));
-    choose_current_note_category_box->setCurrentIndex(0);
+	currentNoteOptionsLayout_.reset(new QHBoxLayout());
+	currentNoteOptionsLayout_->setMargin(0);
+	currentNoteOptionsLayout_->setSpacing(40);
 
-    choose_current_note_version_box = new QComboBox();
-    choose_current_note_version_box->hide();
-    choose_current_note_version_box->addItem("Текущая версия",QVariant("Current"));
-    choose_current_note_version_box->setCurrentIndex(0);
+	chooseCurrentNoteCategoryBox_.reset(new QComboBox());
+	chooseCurrentNoteCategoryBox_->hide();
+	chooseCurrentNoteCategoryBox_->addItem("Без категории", QVariant("Нет категории"));
+	chooseCurrentNoteCategoryBox_->setCurrentIndex(0);
+	//исправить язык на англ
+	chooseCurrentNoteVersionBox_.reset(new QComboBox());
+	chooseCurrentNoteVersionBox_->hide();
+	chooseCurrentNoteVersionBox_->addItem("Текущая версия", QVariant("Current"));
+	chooseCurrentNoteVersionBox_->setCurrentIndex(0);
+	//исправить язык на англ
+	chooseCurrentNoteCategoryButton_.reset(new QPushButton());
+	chooseCurrentNoteCategoryButton_->setToolTip("Присвоить текущей заметки определённую категорию");
+	chooseCurrentNoteCategoryButton_->setIcon(QIcon(":/images/images/select_category.png"));
+	chooseCurrentNoteCategoryButton_->setIconSize(QSize(38, 38));
+	//исправить язык на англ
+	chooseCurrentNoteVersionsButton_.reset(new QPushButton());
+	chooseCurrentNoteVersionsButton_->setToolTip("Просмотреть предыдущие версии текущей заметки");
+	chooseCurrentNoteVersionsButton_->setIcon(QIcon(":/images/images/version.png"));
+	chooseCurrentNoteVersionsButton_->setIconSize(QSize(38, 38));
+	//исправить язык на англ
+	deleteCurrentNoteButton_.reset(new QPushButton());
+	deleteCurrentNoteButton_->setToolTip("Удалить текущую заметку");
+	deleteCurrentNoteButton_->setIcon(QIcon(":/images/images/delete.png"));
+	deleteCurrentNoteButton_->setIconSize(QSize(38, 38));
 
-    choose_current_note_category_label = new QLabel();
-    current_note_versions_label = new QLabel();
-    delete_current_note_label = new QLabel();
+	//choose_current_note_category_label->setObjectName("choose_current_note_category_label");
+	//current_note_versions_label->setObjectName("current_note_versions_label");
+	//delete_current_note_label->setObjectName("delete_current_note_label");
 
-    choose_current_note_category_label->setPixmap(QPixmap(":/images/images/select_category.png").scaled(QSize(38,38),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    current_note_versions_label->setPixmap(QPixmap(":/images/images/version.png").scaled(QSize(38,38),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-    delete_current_note_label->setPixmap(QPixmap(":/images/images/delete.png").scaled(QSize(38,38),Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+	
+	//currentNoteField_.reset(new QWebEngineView());
+	//currentNoteField_->page()->profile()->clearHttpCache();
+	//currentNoteField_->load(QUrl("http://localhost:8080/"));
+	//currentNoteField_->setMinimumWidth(600);
 
-    choose_current_note_category_label->setToolTip("Присвоить текущей заметки определённую категорию");
-    current_note_versions_label->setToolTip("Просмотреть предыдущие версии текущей заметки");
-    delete_current_note_label->setToolTip("Удалить текущую заметку");
+	saveCurrentNoteButton_.reset(new QPushButton(QPushButton::tr("Submit")));
+}
 
-    choose_current_note_category_label->setObjectName("choose_current_note_category_label");
-    current_note_versions_label->setObjectName("current_note_versions_label");
-    delete_current_note_label->setObjectName("delete_current_note_label");
+void MainInterface::placeCurrentNoteSection() const {
 
-    current_note_options_layout->addWidget(choose_current_note_category_box,0,Qt::AlignLeft);
-    current_note_options_layout->addWidget(choose_current_note_version_box,0,Qt::AlignLeft);
-    current_note_options_layout->addWidget(choose_current_note_category_label,0,Qt::AlignRight);
-    current_note_options_layout->addWidget(current_note_versions_label,0,Qt::AlignRight);
-    current_note_options_layout->addWidget(delete_current_note_label,0,Qt::AlignRight);
+	currentNoteOptionsLayout_->addWidget(chooseCurrentNoteCategoryBox_.get(), 0, Qt::AlignLeft);
+	currentNoteOptionsLayout_->addWidget(chooseCurrentNoteVersionBox_.get(), 0, Qt::AlignLeft);
+	currentNoteOptionsLayout_->addWidget(chooseCurrentNoteCategoryButton_.get(), 0, Qt::AlignRight);
+	currentNoteOptionsLayout_->addWidget(chooseCurrentNoteVersionsButton_.get(), 0, Qt::AlignRight);
+	currentNoteOptionsLayout_->addWidget(deleteCurrentNoteButton_.get(), 0, Qt::AlignRight);
 
-    note_field = new QWebEngineView();
-    //note_field->page()->profile()->clearHttpCache();
-    note_field->load(QUrl("http://localhost:8080/"));
-    note_field->setMinimumWidth(600);
+	currentNoteTopPanelLayout_->addWidget(currentNoteNameEdit_.get(), 0, 0, Qt::AlignLeft);
+	currentNoteTopPanelLayout_->addLayout(currentNoteOptionsLayout_.get(), 0, 1, Qt::AlignRight);
 
-    submit_current_note_button = new QPushButton(QPushButton::tr("Submit"));
+	currentNoteSectionLayout_->addLayout(currentNoteTopPanelLayout_.get(), 0, 0);
+	currentNoteSectionLayout_->addWidget(currentNoteField_.get(), 1, 0);
+	currentNoteSectionLayout_->addWidget(saveCurrentNoteButton_.get(), 2, 0, Qt::AlignRight);
+}
 
-    current_note_panel_layout->addWidget(current_note_name_edit,0,0,Qt::AlignLeft);
-    current_note_panel_layout->addLayout(current_note_options_layout,0,1,Qt::AlignRight);
+void MainInterface::setAttributeToAllWidgets(const Qt::WidgetAttribute&& attribute) const {
 
-    current_note_section_layout->addLayout(current_note_panel_layout,0,0);
-    current_note_section_layout->addWidget(note_field,1,0);
-    current_note_section_layout->addWidget(submit_current_note_button,2,0,Qt::AlignRight);
+	auto&& interfaceWidgetsList = this->children();
+	for (auto&& widget : interfaceWidgetsList) {
+		if (widget->isWidgetType())
+			qobject_cast<QWidget*>(widget)->setAttribute(attribute);
+	}
+}
 
-    hideDefaultCurrentNoteSection();
+void MainInterface::setSizePolicyToAllWidgets(const QSizePolicy::Policy&& horizontal,
+	const QSizePolicy::Policy&& vertical) const {
 
-    return current_note_section_layout;
-
+	auto&& interfaceWidgetsList = this->children();
+	for (auto&& widget : interfaceWidgetsList) {
+		if (widget->isWidgetType())
+			qobject_cast<QWidget*>(widget)->setSizePolicy(QSizePolicy(horizontal, vertical));
+	}
 }
 
 void MainInterface::showDefaultCurrentNoteSection(){
 
-    current_note_name_edit->show();
+    /*current_note_name_edit->show();
     choose_current_note_category_label->show();
     current_note_versions_label->show();
     delete_current_note_label->show();
     note_field->show();
-    submit_current_note_button->show();
+    submit_current_note_button->show();*/
 
 }
 
 void MainInterface::hideDefaultCurrentNoteSection(){
 
-    current_note_name_edit->hide();
+   /* current_note_name_edit->hide();
     choose_current_note_category_box->hide();
     choose_current_note_version_box->hide();
     choose_current_note_category_label->hide();
     current_note_versions_label->hide();
     delete_current_note_label->hide();
     note_field->hide();
-    submit_current_note_button->hide();
+    submit_current_note_button->hide();*/
 
-    window->adjustSize();
-    window->adjustSize();
+	// Исправить баг с изменением разрешения окна после закрытия
+	// поля заметки
+    //window->adjustSize();
+    //window->adjustSize();
 
-}
-
-QSize MainInterface::getWindowDefaultSize(){
-    return window_size;
 }
 
 void MainInterface::addNewRowInNotesList(const int& row_counter,QString text, QString wtf, QString bg_color, QString text_color){
@@ -278,41 +258,42 @@ void MainInterface::addNewRowInNotesList(const int& row_counter,QString text, QS
     item->setBackgroundColor(QColor(bg_color));
     item->setTextColor(QColor(text_color));
 
-    all_notes_list->insertItem(row_counter, item);
+    //all_notes_list->insertItem(row_counter, item);
 
 }
-
+/*
 QPushButton* MainInterface::getSubmitButton(){
-    return submit_current_note_button;
+    return submit_current_note_button.get();
 }
 
 QWebEngineView* MainInterface::getWebPage(){
-    return note_field;
+    return note_field.get();
 }
 
 QComboBox* MainInterface::getCategoryBox(){
-    return choose_current_note_category_box;
+    return choose_current_note_category_box.get();
 }
 
 QComboBox* MainInterface::getAllCategoriesBox(){
-    return note_categories_box;
+    return note_categories_box.get();
 }
 
 QComboBox* MainInterface::getVersionsBox(){
-    return choose_current_note_version_box;
+    return choose_current_note_version_box.get();
 }
 
 QLineEdit* MainInterface::getNameEdit(){
-    return current_note_name_edit;
+    return current_note_name_edit.get();
 }
 
-QLabel* MainInterface::getPersonalSettingsLabel(){
-    return personal_settings_label;
+QPushButton* MainInterface::getPersonalSettingsButton(){
+    return personalSettingsButton_.get();
 }
-
+*/
+/*
 void MainInterface::createDefaultPersonalInfo(EventHandlers* event_handlers){
 
-    personal_info = new PersonalInfo(event_handlers);
+    personal_info.reset(new PersonalInfo(event_handlers));
 
     personal_info->personal_info_window = new QWidget();
 
@@ -379,43 +360,16 @@ void MainInterface::createDefaultPersonalInfo(EventHandlers* event_handlers){
 
     personal_info->personal_info_window->show();
 
-}
+}*/
 
-PersonalInfo::~PersonalInfo(){
 
-    delete user_photo_label;
-    delete first_name_label;
-    delete last_name_label;
-    delete phone_number_label;
-    delete email_label;
-
-    delete first_name_edit;
-    delete last_name_edit;
-    delete phone_number_edit;
-    delete email_edit;
-
-    delete description_label;
-    delete description_edit;
-
-    delete ok_button;
-    delete cancel_button;
-
-    delete button_controls_layout;
-    delete personal_section_edits_layout;
-    delete personal_section_top_layout;
-    delete personal_section_layout;
-
-    delete personal_info_window;
-
-}
-
-PersonalInfo* MainInterface::getPersonalInterface(){
-    return this->personal_info;
-}
-
+/*PersonalInfoPanel* MainInterface::getPersonalInterface(){
+    return this->personal_info.get();
+}*/
+/*
 void MainInterface::createDefaultCustomization(EventHandlers* event_handlers){
 
-    customization = new Customization(event_handlers);
+    customization.reset(new Customization(event_handlers));
 
     customization->customization_window = new QWidget();
 
@@ -535,49 +489,15 @@ void MainInterface::createDefaultCustomization(EventHandlers* event_handlers){
     customization->customization_window->show();
 
 }
-
-Customization::~Customization(){
-
-    delete choose_category_label;
-    delete choose_category_box;
-
-    delete category_name_label;
-    delete category_name_edit;
-
-    delete text_color_label;
-    delete text_color_show_label;
-
-    delete background_color_label;
-    delete background_color_show_label;
-
-    delete item_customization_label;
-
-    delete note_back_label;
-    delete note_back_image;
-
-    delete description_label;
-    delete description_edit;
-
-    delete save_button;
-    delete cancel_button;
-    delete delete_button;
-
-    delete controls_layout;
-    delete color_picker_layout;
-    delete not_description_layout;
-    delete customization_section_layout;
-
-    delete customization_window;
-
-}
-
+*/
+/*
 Customization* MainInterface::getCustomizationInterface(){
-    return this->customization;
-}
-
+    return this->customization.get();
+}*/
+/*
 void MainInterface::createDefaultGroup(EventHandlers* event_handlers){
 
-    group = new Group(event_handlers);
+    group.reset(new Group(event_handlers));
 
     group->group_window = new QWidget();
 
@@ -627,4 +547,34 @@ void MainInterface::createDefaultGroup(EventHandlers* event_handlers){
     group->group_window->show();
 
 }
+*/
 
+void MainInterface::show() {
+
+	if (this->isHidden())
+		QWidget::show();
+}
+
+void MainInterface::hide() {
+
+	if (!this->isHidden())
+		QWidget::hide();
+}
+
+void MainInterface::resize(const int& width, const int& height) {
+
+	QWidget::resize(width, height);
+}
+
+void MainInterface::resize(const int&& width, const int&& height) {
+
+	QWidget::resize(width, height);
+}
+
+void MainInterface::paintEvent(QPaintEvent*) {
+
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}

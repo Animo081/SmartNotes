@@ -18,7 +18,8 @@
 class Gui;
 
 class Interface;
-
+class LogInInterface;
+class RegisterInterface;
 class MainInterface;
 
 class EventHandlers: public QObject{
@@ -43,13 +44,9 @@ public:
     EventHandlers(std::shared_ptr<Gui> gui,
 		std::shared_ptr<Network> network);
     virtual ~EventHandlers();
-    void bindDefaultRegisterInterface(Interface*);
-    void cancelRegisterInterface(Interface*);
-    void registrationProcessInit(QLineEdit*,QLineEdit*,QLineEdit*,QLineEdit*,Interface*);
-    void bindDefaultLogInInterface(Interface*);
-    void signInButtonBind(QLineEdit*,QLineEdit*,Interface*);
-    void registerButtonBind();
-    void bindDefaultMainInterface(MainInterface*);
+    void bindDefaultRegisterInterface(const RegisterInterface*) const;
+    void bindDefaultLogInInterface(const LogInInterface*) const;
+    void bindDefaultMainInterface(const MainInterface*) const;
     void fillAllNotesSection(MainInterface*);
     void sendCurrentNoteData(MainInterface*);
     void deleteCurrentNoteData(MainInterface*);
